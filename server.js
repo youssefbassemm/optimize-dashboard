@@ -245,6 +245,36 @@ app.get('/onboarding', requirePageAuth, (req, res) => {
   });
 });
 
+// TEMP: one-time account purge for bunzyeg@gmail.com re-registration
+// Remove this route after use.
+app.get('/api/one-time/purge-bunzy-4x9k', (req, res) => {
+  try {
+    const { db: rawDb } = require('./db/db');
+    const user = rawDb.prepare("SELECT id FROM users WHERE LOWER(email) = 'bunzyeg@gmail.com'").get();
+    if (!user) return res.json({ ok: true, message: 'User not found — already removed or never existed' });
+    const brandIds = rawDb.prepare('SELECT brand_id FROM user_brands WHERE user_id = ?').all(user.id).map(r => r.brand_id);
+    const TABLES = ['cx_messages','cx_flows','cx_settings','impersonation_sessions','integrations',
+      'tier_changes','events','orders_cache','order_items','inventory_cache','campaign_cache',
+      'ig_cache','sync_logs','webhook_queue','fb_settings','fb_setup_expenses','fb_recurring_expenses',
+      'fb_daily_revenue','fb_daily_expenses','fb_bank_transfers','fb_cash_drawer_check',
+      'fb_inventory_check','fb_calendar_notes','user_brands'];
+    rawDb.transaction(() => {
+      for (const brandId of brandIds) {
+        for (const t of TABLES) {
+          try { rawDb.prepare(`DELETE FROM ${t} WHERE brand_id = ?`).run(brandId); } catch (_) {}
+        }
+        try { rawDb.prepare('DELETE FROM brands WHERE id = ?').run(brandId); } catch (_) {}
+      }
+      try { rawDb.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id); } catch (_) {}
+      try { rawDb.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(user.id); } catch (_) {}
+      rawDb.prepare('DELETE FROM users WHERE id = ?').run(user.id);
+    })();
+    return res.json({ ok: true, message: 'bunzyeg@gmail.com purged — you can now sign up fresh' });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // /book — public qualification form (no auth required)
 app.get('/book', (req, res) => {
   const p = path.join(PUBLIC_DIR, 'book.html');
