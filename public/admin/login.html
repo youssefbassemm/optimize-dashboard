@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin · Optimize</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0A0908;--surface:#111009;--lift:#1A1815;--border:rgba(255,255,255,.08);--t1:#E8E4DF;--t2:#A09890;--accent:#C8A97A;--err:#9B5B5B;--sans:'DM Sans',system-ui,sans-serif;--head:'Syne',sans-serif}
+  body{background:var(--bg);color:var(--t1);font-family:var(--sans);min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px 36px;width:100%;max-width:360px}
+  .logo{font-family:var(--head);font-size:20px;font-weight:800;letter-spacing:-.03em;color:var(--accent);margin-bottom:28px;text-align:center}
+  .logo span{color:var(--t2);font-weight:400;font-size:13px;display:block;margin-top:4px;letter-spacing:.05em;text-transform:uppercase}
+  label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+  input[type=password]{width:100%;background:var(--lift);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color .2s}
+  input[type=password]:focus{border-color:var(--accent)}
+  button{margin-top:20px;width:100%;background:var(--accent);color:#0A0908;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;font-family:var(--head);cursor:pointer;letter-spacing:.02em;transition:opacity .2s}
+  button:hover{opacity:.88}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .err{margin-top:14px;font-size:13px;color:var(--err);text-align:center;min-height:18px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Optimize<span>Admin Console</span></div>
+  <label for="secret">Admin Secret</label>
+  <input type="password" id="secret" placeholder="Enter admin secret" autocomplete="current-password"/>
+  <button id="btn" onclick="login()">Sign in</button>
+  <div class="err" id="err"></div>
+</div>
+<script>
+  document.getElementById('secret').addEventListener('keydown', function(e){ if(e.key==='Enter') login(); });
+  function login(){
+    var btn=document.getElementById('btn');
+    var err=document.getElementById('err');
+    var secret=document.getElementById('secret').value.trim();
+    if(!secret){err.textContent='Enter the admin secret.';return;}
+    btn.disabled=true;btn.textContent='Signing in…';err.textContent='';
+    fetch('/api/admin/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:secret})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok){window.location.replace('/admin');}
+        else{err.textContent=d.error||'Invalid secret.';btn.disabled=false;btn.textContent='Sign in';}
+      })
+      .catch(function(){err.textContent='Network error — try again.';btn.disabled=false;btn.textContent='Sign in';});
+  }
+</script>
+</body>
+</html>

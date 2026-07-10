@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin · Optimize</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0908;--surface:#111009;--lift:#1A1815;--lift2:#221F1B;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --t1:#E8E4DF;--t2:#A09890;--t3:#5A5550;
+  --accent:#C8A97A;--paid:#5A9968;--free:#6E6E6E;
+  --neg:#9B5B5B;--warn:#B8904A;
+  --sans:'DM Sans',system-ui,sans-serif;--head:'Syne',sans-serif
+}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── Layout ── */
+.shell{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column}
+.sidebar-logo{font-family:var(--head);font-size:16px;font-weight:800;letter-spacing:-.03em;color:var(--accent);padding:0 20px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo span{color:var(--t3);font-size:10px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:2px}
+nav{padding:16px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:var(--t2);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--t1);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,169,122,.06)}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.logout-btn{margin:auto 12px 12px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--t2);font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .2s;text-align:center}
+.logout-btn:hover{border-color:var(--neg);color:var(--neg)}
+
+.main{overflow:auto;display:flex;flex-direction:column}
+.topbar{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface)}
+.topbar-title{font-family:var(--head);font-size:16px;font-weight:700;letter-spacing:-.02em}
+.topbar-meta{font-size:12px;color:var(--t3)}
+.content{padding:28px;flex:1}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;letter-spacing:.01em}
+.card-body{padding:20px}
+
+/* ── Stats row ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.stat-val{font-family:var(--head);font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat-label{font-size:11px;color:var(--t2);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--border)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-em{font-weight:500;color:var(--t1)}
+.td-muted{color:var(--t3);font-size:12px}
+
+/* ── Pills ── */
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.pill-paid{background:rgba(90,153,104,.18);color:#5A9968}
+.pill-free{background:rgba(90,85,80,.2);color:var(--t2)}
+.pill-ok{background:rgba(90,153,104,.18);color:#5A9968}
+.pill-warn{background:rgba(184,144,74,.15);color:#B8904A}
+.pill-err{background:rgba(155,91,91,.18);color:var(--neg)}
+.pill-pending{background:rgba(90,85,80,.2);color:var(--t2)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;font-family:var(--sans);cursor:pointer;border:1px solid var(--border);background:var(--lift);color:var(--t1);transition:all .15s}
+.btn:hover{border-color:var(--border2);background:var(--lift2)}
+.btn-accent{background:rgba(200,169,122,.12);border-color:rgba(200,169,122,.3);color:var(--accent)}
+.btn-accent:hover{background:rgba(200,169,122,.2)}
+.btn-paid{background:rgba(90,153,104,.12);border-color:rgba(90,153,104,.3);color:#5A9968}
+.btn-paid:hover{background:rgba(90,153,104,.2)}
+.btn-neg{background:rgba(155,91,91,.12);border-color:rgba(155,91,91,.3);color:var(--neg)}
+.btn-neg:hover{background:rgba(155,91,91,.2)}
+
+/* ── Search / filter ── */
+.toolbar{display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:200px;background:var(--lift);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;color:var(--t1);font-family:var(--sans);outline:none}
+.search:focus{border-color:var(--border2)}
+.search::placeholder{color:var(--t3)}
+
+/* ── Brand detail panel ── */
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.detail-overlay.open{display:flex}
+.detail-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:600px;max-width:95vw;max-height:85vh;overflow:auto}
+.detail-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface)}
+.detail-close{background:none;border:none;color:var(--t2);font-size:20px;cursor:pointer;padding:0 4px}
+.detail-close:hover{color:var(--t1)}
+.detail-body{padding:24px}
+.detail-section{margin-bottom:20px}
+.detail-section-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.kv-grid{display:grid;grid-template-columns:140px 1fr;gap:6px 12px}
+.kv-key{color:var(--t2);font-size:12px}
+.kv-val{font-size:13px;word-break:break-all}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--lift2);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:13px;pointer-events:none;opacity:0;transform:translateY(8px);transition:all .25s;z-index:200}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* ── Loading / empty ── */
+.loading{color:var(--t3);font-size:13px;padding:24px;text-align:center}
+.empty{color:var(--t3);font-size:13px;padding:40px;text-align:center}
+
+/* ── Section hidden ── */
+.section{display:none}
+.section.active{display:block}
+
+/* ── System health blocks ── */
+.health-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.health-block{background:var(--lift);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.health-block-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.health-kv{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;border-bottom:1px solid var(--border)}
+.health-kv:last-child{border-bottom:none}
+.health-kv-k{color:var(--t2)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Optimize<span>Admin Console</span></div>
+    <nav>
+      <div class="nav-item active" onclick="showSection('brands')"><span class="nav-icon">🏢</span>Brands</div>
+      <div class="nav-item" onclick="showSection('events')"><span class="nav-icon">⚡</span>Events</div>
+      <div class="nav-item" onclick="showSection('leads')"><span class="nav-icon">🎯</span>Leads</div>
+      <div class="nav-item" onclick="showSection('system')"><span class="nav-icon">⚙️</span>System</div>
+    </nav>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="section-title">Brands</span>
+      <span class="topbar-meta" id="topbar-meta"></span>
+    </div>
+    <div class="content">
+
+      <!-- ── BRANDS ── -->
+      <div class="section active" id="sec-brands">
+        <div class="stats" id="brand-stats">
+          <div class="stat"><div class="stat-val" id="st-total">—</div><div class="stat-label">Total Brands</div></div>
+          <div class="stat"><div class="stat-val" id="st-paid" style="color:var(--paid)">—</div><div class="stat-label">Paid</div></div>
+          <div class="stat"><div class="stat-val" id="st-onboarded">—</div><div class="stat-label">Onboarded</div></div>
+          <div class="stat"><div class="stat-val" id="st-24h">—</div><div class="stat-label">New (24h)</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">All Brands</span>
+            <button class="btn btn-accent" onclick="loadBrands()">↻ Refresh</button>
+          </div>
+          <div class="card-body" style="padding:16px">
+            <div class="toolbar">
+              <input class="search" id="brand-search" placeholder="Search by name, email, ID…" oninput="filterBrands()"/>
+              <select class="search" style="max-width:130px" id="tier-filter" onchange="filterBrands()">
+                <option value="">All tiers</option>
+                <option value="paid">Paid</option>
+                <option value="free">Free</option>
+              </select>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Brand</th><th>Tier</th><th>Type</th><th>Onboarded</th><th>Last seen</th><th>Integrations</th><th>Actions</th>
+                </tr></thead>
+                <tbody id="brands-tbody"><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EVENTS ── -->
+      <div class="section" id="sec-events">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Analytics Events</span>
+            <button class="btn btn-accent" onclick="loadEvents()">↻ Refresh</button>
+          </div>
+          <div class="card-body" style="padding:16px">
+            <div class="toolbar">
+              <input class="search" id="event-search" placeholder="Filter by event name or brand ID…" oninput="filterEvents()"/>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Event</th><th>Brand</th><th>When</th><th>Payload</th></tr></thead>
+                <tbody id="events-tbody"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LEADS ── -->
+      <div class="section" id="sec-leads">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">High-Priority Leads</span>
+            <button class="btn btn-accent" onclick="loadLeads()">↻ Refresh</button>
+          </div>
+          <div class="card-body" style="padding:16px">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Brand</th><th>Contact</th><th>Revenue</th><th>Event</th><th>When</th><th>Status</th></tr></thead>
+                <tbody id="leads-tbody"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SYSTEM ── -->
+      <div class="section" id="sec-system">
+        <div class="stats" style="margin-bottom:24px">
+          <div class="stat"><div class="stat-val" id="sy-brands">—</div><div class="stat-label">Total Brands</div></div>
+          <div class="stat"><div class="stat-val" id="sy-wq-pending">—</div><div class="stat-label">Webhook Queue</div></div>
+          <div class="stat"><div class="stat-val" id="sy-events24">—</div><div class="stat-label">Events (24h)</div></div>
+          <div class="stat"><div class="stat-val" id="sy-orders">—</div><div class="stat-label">Cached Orders</div></div>
+        </div>
+        <div class="health-grid" id="health-grid"><div class="loading">Loading…</div></div>
+        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+          <button class="btn btn-accent" onclick="loadSystem()">↻ Refresh</button>
+          <button class="btn btn-neg" id="pause-btn" onclick="pauseSyncs()">⏸ Pause all syncs</button>
+          <button class="btn btn-paid" id="resume-btn" onclick="resumeSyncs()">▶ Resume syncs</button>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- Brand detail overlay -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-head">
+      <span id="detail-brand-name" style="font-weight:600;font-size:15px">—</span>
+      <button class="detail-close" onclick="closeDetailBtn()">×</button>
+    </div>
+    <div class="detail-body" id="detail-body"><div class="loading">Loading…</div></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+var allBrands = [];
+var allEvents = [];
+
+// ── Auth check ────────────────────────────────────────────────────────────────
+fetch('/api/admin/auth/check').then(function(r){
+  if(!r.ok) window.location.replace('/admin/login');
+  else boot();
+}).catch(function(){ window.location.replace('/admin/login'); });
+
+function boot(){
+  loadBrands();
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderColor = type==='err' ? 'rgba(155,91,91,.4)' : type==='ok' ? 'rgba(90,153,104,.4)' : 'var(--border2)';
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2800);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+var SECTIONS = {
+  brands: { title:'Brands', load: loadBrands },
+  events: { title:'Events', load: loadEvents },
+  leads:  { title:'Leads',  load: loadLeads },
+  system: { title:'System', load: loadSystem },
+};
+var currentSection = 'brands';
+
+window.showSection = function(name){
+  if(currentSection === name) return;
+  currentSection = name;
+  document.querySelectorAll('.nav-item').forEach(function(el,i){
+    el.classList.toggle('active', ['brands','events','leads','system'][i]===name);
+  });
+  document.querySelectorAll('.section').forEach(function(el){
+    el.classList.toggle('active', el.id === 'sec-'+name);
+  });
+  document.getElementById('section-title').textContent = SECTIONS[name].title;
+  SECTIONS[name].load();
+};
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+window.logout = function(){
+  fetch('/api/admin/auth/logout',{method:'POST'}).finally(function(){
+    window.location.replace('/admin/login');
+  });
+};
+
+// ── API helper ────────────────────────────────────────────────────────────────
+function api(url, opts){
+  return fetch(url, opts).then(function(r){
+    if(r.status===401){ window.location.replace('/admin/login'); return null; }
+    return r.json();
+  }).catch(function(e){ toast('Network error','err'); return null; });
+}
+
+// ── BRANDS ────────────────────────────────────────────────────────────────────
+function loadBrands(){
+  document.getElementById('brands-tbody').innerHTML='<tr><td colspan="7" class="loading">Loading…</td></tr>';
+  api('/api/admin/brands').then(function(d){
+    if(!d||!d.ok) return;
+    allBrands = d.brands || [];
+    // Stats
+    var paid = allBrands.filter(function(b){ return b.tier==='paid'; }).length;
+    var ob   = allBrands.filter(function(b){ return b.onboarded; }).length;
+    document.getElementById('st-total').textContent = allBrands.length;
+    document.getElementById('st-paid').textContent  = paid;
+    document.getElementById('st-onboarded').textContent = ob;
+    document.getElementById('st-24h').textContent   = d.new_last_24h || 0;
+    document.getElementById('topbar-meta').textContent = allBrands.length + ' brands';
+    renderBrands(allBrands);
+  });
+}
+
+function renderBrands(brands){
+  var tbody = document.getElementById('brands-tbody');
+  if(!brands.length){ tbody.innerHTML='<tr><td colspan="7" class="empty">No brands found</td></tr>'; return; }
+  tbody.innerHTML = brands.map(function(b){
+    var tierPill = b.tier==='paid'
+      ? '<span class="pill pill-paid">Paid</span>'
+      : '<span class="pill pill-free">Free</span>';
+    var typePill = b.business_type==='food_brand'
+      ? '<span class="pill pill-warn" style="font-size:10px">Food</span>'
+      : '<span class="pill pill-pending" style="font-size:10px">Ecomm</span>';
+    var since = b.last_seen_at ? relTime(b.last_seen_at) : '—';
+    var integCount = b.integration_count || 0;
+    return '<tr>'
+      +'<td>'
+        +'<div class="td-em">'+esc(b.name)+'</div>'
+        +'<div class="td-muted">'+esc(b.id)+'</div>'
+        +(b.owner_email ? '<div class="td-muted">'+esc(b.owner_email)+'</div>' : '')
+      +'</td>'
+      +'<td>'+tierPill+'</td>'
+      +'<td>'+typePill+'</td>'
+      +'<td>'+(b.onboarded?'<span class="pill pill-ok">Yes</span>':'<span class="pill pill-pending">No</span>')+'</td>'
+      +'<td class="td-muted">'+since+'</td>'
+      +'<td class="td-muted" style="text-align:center">'+integCount+'</td>'
+      +'<td>'
+        +(b.tier==='free'
+          ? '<button class="btn btn-paid" onclick="setTier(\''+esc(b.id)+'\',\'paid\')">→ Paid</button>'
+          : '<button class="btn btn-neg" onclick="setTier(\''+esc(b.id)+'\',\'free\')">→ Free</button>'
+        )
+        +' <button class="btn" onclick="showDetail(\''+esc(b.id)+'\')">Detail</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+window.filterBrands = function(){
+  var q = document.getElementById('brand-search').value.toLowerCase();
+  var t = document.getElementById('tier-filter').value;
+  var filtered = allBrands.filter(function(b){
+    var matchQ = !q || (b.name||'').toLowerCase().includes(q) || (b.id||'').toLowerCase().includes(q) || (b.owner_email||'').toLowerCase().includes(q);
+    var matchT = !t || b.tier===t;
+    return matchQ && matchT;
+  });
+  renderBrands(filtered);
+};
+
+window.setTier = function(brandId, tier){
+  if(!confirm('Set "'+brandId+'" to '+tier+'?')) return;
+  api('/api/admin/brands/'+brandId+'/set-tier',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({tier:tier, note:'set via admin panel'})
+  }).then(function(d){
+    if(!d) return;
+    if(d.ok){ toast('Tier updated → '+tier,'ok'); loadBrands(); }
+    else toast(d.error||'Failed','err');
+  });
+};
+
+window.showDetail = function(brandId){
+  var overlay = document.getElementById('detail-overlay');
+  var body    = document.getElementById('detail-body');
+  var titleEl = document.getElementById('detail-brand-name');
+  var brand   = allBrands.find(function(b){ return b.id===brandId; });
+  titleEl.textContent = brand ? brand.name : brandId;
+  body.innerHTML = '<div class="loading">Loading…</div>';
+  overlay.classList.add('open');
+  api('/api/admin/brands/'+brandId+'/detail').then(function(d){
+    if(!d||!d.ok){ body.innerHTML='<div class="empty">Failed to load</div>'; return; }
+    var br = d.brand;
+    var u  = d.owner;
+    var ints= d.integrations||[];
+    var hist= d.tier_history||[];
+    var html='';
+    html += '<div class="detail-section"><div class="detail-section-title">Brand</div><div class="kv-grid">'
+      +'<span class="kv-key">ID</span><span class="kv-val">'+esc(br.id)+'</span>'
+      +'<span class="kv-key">Name</span><span class="kv-val">'+esc(br.name)+'</span>'
+      +'<span class="kv-key">Type</span><span class="kv-val">'+esc(br.business_type||'ecommerce')+'</span>'
+      +'<span class="kv-key">Tier</span><span class="kv-val">'+esc(br.tier||'free')+'</span>'
+      +'<span class="kv-key">Onboarded</span><span class="kv-val">'+(br.onboarded?'Yes':'No')+'</span>'
+      +'<span class="kv-key">Created</span><span class="kv-val">'+esc(br.created_at||'—')+'</span>'
+      +'<span class="kv-key">Last seen</span><span class="kv-val">'+esc(br.last_seen_at||'—')+'</span>'
+      +'</div></div>';
+    if(u){
+      html += '<div class="detail-section"><div class="detail-section-title">Owner</div><div class="kv-grid">'
+        +'<span class="kv-key">Name</span><span class="kv-val">'+esc(u.name||'—')+'</span>'
+        +'<span class="kv-key">Email</span><span class="kv-val">'+esc(u.email||'—')+'</span>'
+        +'<span class="kv-key">Phone</span><span class="kv-val">'+esc(u.phone||'—')+'</span>'
+        +'<span class="kv-key">IG Handle</span><span class="kv-val">'+esc(br.ig_handle||'—')+'</span>'
+        +'<span class="kv-key">Revenue</span><span class="kv-val">'+esc(br.revenue_range||'—')+'</span>'
+        +'</div></div>';
+    }
+    if(ints.length){
+      html += '<div class="detail-section"><div class="detail-section-title">Integrations</div>';
+      html += ints.map(function(i){
+        var cls = i.status==='connected'?'pill-ok':i.status==='warning'?'pill-warn':'pill-err';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+          +'<span style="text-transform:capitalize">'+esc(i.platform)+'</span>'
+          +'<span class="pill '+cls+'">'+esc(i.status)+'</span>'
+          +'</div>';
+      }).join('');
+      html += '</div>';
+    }
+    if(hist.length){
+      html += '<div class="detail-section"><div class="detail-section-title">Tier History</div>';
+      html += hist.map(function(h){
+        return '<div style="font-size:12px;color:var(--t2);padding:4px 0;border-bottom:1px solid var(--border)">'
+          +esc(h.old_tier)+' → '+esc(h.new_tier)+' · '+esc(h.changed_by)+' · '+esc(h.changed_at)+(h.note?' · '+esc(h.note):'')
+          +'</div>';
+      }).join('');
+      html += '</div>';
+    }
+    body.innerHTML = html;
+  });
+};
+
+window.closeDetail = function(e){
+  if(e.target===document.getElementById('detail-overlay')) closeDetailBtn();
+};
+window.closeDetailBtn = function(){
+  document.getElementById('detail-overlay').classList.remove('open');
+};
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+function loadEvents(){
+  document.getElementById('events-tbody').innerHTML='<tr><td colspan="4" class="loading">Loading…</td></tr>';
+  api('/api/admin/events?limit=200').then(function(d){
+    if(!d||!d.ok) return;
+    allEvents = d.events||[];
+    document.getElementById('topbar-meta').textContent = allEvents.length+' events';
+    renderEvents(allEvents);
+  });
+}
+
+function renderEvents(events){
+  var tbody = document.getElementById('events-tbody');
+  if(!events.length){ tbody.innerHTML='<tr><td colspan="4" class="empty">No events</td></tr>'; return; }
+  tbody.innerHTML = events.map(function(e){
+    var pay = '';
+    try{ pay = e.payload ? JSON.stringify(JSON.parse(e.payload),null,0).slice(0,80) : ''; }catch(_){}
+    return '<tr>'
+      +'<td class="td-em">'+esc(e.event_name)+'</td>'
+      +'<td class="td-muted">'+esc(e.brand_id)+'</td>'
+      +'<td class="td-muted">'+relTime(e.created_at)+'</td>'
+      +'<td class="td-muted" style="font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(pay)+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+window.filterEvents = function(){
+  var q = document.getElementById('event-search').value.toLowerCase();
+  renderEvents(allEvents.filter(function(e){
+    return !q || (e.event_name||'').toLowerCase().includes(q) || (e.brand_id||'').toLowerCase().includes(q);
+  }));
+};
+
+// ── LEADS ─────────────────────────────────────────────────────────────────────
+function loadLeads(){
+  document.getElementById('leads-tbody').innerHTML='<tr><td colspan="6" class="loading">Loading…</td></tr>';
+  api('/api/admin/leads').then(function(d){
+    if(!d||!d.ok) return;
+    var leads = d.leads||[];
+    document.getElementById('topbar-meta').textContent = leads.length+' leads';
+    var tbody = document.getElementById('leads-tbody');
+    if(!leads.length){ tbody.innerHTML='<tr><td colspan="6" class="empty">No high-priority leads</td></tr>'; return; }
+    tbody.innerHTML = leads.map(function(l){
+      var status = l.contacted_event_id
+        ? '<span class="pill pill-ok">Contacted</span>'
+        : '<span class="pill pill-warn">Pending</span>';
+      return '<tr>'
+        +'<td class="td-em">'+esc(l.brand_name||'—')+'</td>'
+        +'<td>'
+          +'<div class="td-em">'+esc(l.contact_name||'—')+'</div>'
+          +'<div class="td-muted">'+esc(l.contact_email||'—')+'</div>'
+          +(l.contact_phone?'<div class="td-muted">'+esc(l.contact_phone)+'</div>':'')
+        +'</td>'
+        +'<td class="td-muted">'+esc(l.revenue_range||'—')+'</td>'
+        +'<td class="td-muted" style="font-size:12px">'+esc(l.event_name||'—')+'</td>'
+        +'<td class="td-muted">'+relTime(l.created_at)+'</td>'
+        +'<td>'+status+'</td>'
+        +'</tr>';
+    }).join('');
+  });
+}
+
+// ── SYSTEM ────────────────────────────────────────────────────────────────────
+function loadSystem(){
+  document.getElementById('health-grid').innerHTML='<div class="loading">Loading…</div>';
+  document.getElementById('topbar-meta').textContent='';
+  api('/api/admin/system/health').then(function(d){
+    if(!d||!d.ok) return;
+    var h = d.health||{};
+    // Stats
+    var b = h.brands||{};
+    document.getElementById('sy-brands').textContent = b.total||0;
+    var wq = h.sync_queue||{};
+    document.getElementById('sy-wq-pending').textContent = wq.pending||0;
+    var ev = h.events||{};
+    document.getElementById('sy-events24').textContent = ev.total_24h||0;
+    var db2 = h.database||{};
+    document.getElementById('sy-orders').textContent = db2.orders_count||0;
+    // Health blocks
+    var blocks = [
+      {title:'Brands', data:b},
+      {title:'Sync Queue', data:wq},
+      {title:'Events', data:ev},
+      {title:'Database', data:db2},
+    ];
+    var integH = h.integrations||{};
+    var intGrid='';
+    if(integH.by_platform){
+      var byP = integH.by_platform;
+      Object.keys(byP).forEach(function(p){
+        var r=byP[p];
+        intGrid+='<div class="health-kv"><span class="health-kv-k">'+esc(p)+'</span><span>✓'+r.connected+' ⚠'+r.warning+' ✗'+r.disconnected+'</span></div>';
+      });
+    }
+    document.getElementById('health-grid').innerHTML = blocks.map(function(b2){
+      var rows = Object.entries(b2.data).filter(function(e){ return typeof e[1]!=='object'; }).map(function(e){
+        return '<div class="health-kv"><span class="health-kv-k">'+esc(String(e[0]).replace(/_/g,' '))+'</span><span>'+esc(String(e[1]))+'</span></div>';
+      }).join('');
+      return '<div class="health-block"><div class="health-block-title">'+esc(b2.title)+'</div>'+rows+'</div>';
+    }).join('')
+    +(intGrid?'<div class="health-block"><div class="health-block-title">Integrations by Platform</div>'+intGrid+'</div>':'');
+  });
+}
+
+window.pauseSyncs = function(){
+  if(!confirm('Pause all background syncs?')) return;
+  api('/api/admin/system/pause-syncs',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(d){
+    if(d&&d.ok) toast('Syncs paused','ok'); else toast('Failed','err');
+  });
+};
+window.resumeSyncs = function(){
+  api('/api/admin/system/resume-syncs',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(d){
+    if(d&&d.ok) toast('Syncs resumed','ok'); else toast('Failed','err');
+  });
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function relTime(iso){
+  if(!iso) return '—';
+  var d=new Date(iso), now=Date.now(), diff=now-d.getTime();
+  if(isNaN(diff)) return iso.slice(0,16);
+  if(diff<60000) return 'just now';
+  if(diff<3600000) return Math.round(diff/60000)+'m ago';
+  if(diff<86400000) return Math.round(diff/3600000)+'h ago';
+  return Math.round(diff/86400000)+'d ago';
+}
+
+})();
+</script>
+</body>
+</html>
