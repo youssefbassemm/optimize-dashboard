@@ -2005,7 +2005,7 @@
     renderSeason(demo.summary); renderMetrics(demo.summary); renderBalances(demo.summary,demo.cashDrawer);
     renderStatus(demo.summary.todayStatus); renderDonut(demo.summary.revenue);
     _lastBarRows=demo.revenueRows;
-    requestAnimationFrame(function(){ drawBars(demo.revenueRows); });
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawBars(demo.revenueRows); }); });
   }
 
   /* ═══════════════════════════════════════════════════════
