@@ -902,6 +902,73 @@
 
     .toggle input:checked ~ .toggle-thumb { transform: translateX(14px); background: var(--cash); }
 
+    /* ── Reports grid ──────────────────────────────────── */
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .report-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      padding: 18px 20px;
+      transition: border-color 150ms;
+    }
+
+    .report-card:hover { border-color: var(--rule-hi); }
+
+    .report-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 36px;
+      text-align: center;
+    }
+
+    .report-info { flex: 1; }
+
+    .report-title {
+      font-family: var(--head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 4px;
+    }
+
+    .report-desc {
+      font-size: 11px;
+      color: var(--t3);
+      line-height: 1.5;
+    }
+
+    .report-btn {
+      flex-shrink: 0;
+      background: rgba(200,169,122,0.10);
+      border: 1px solid rgba(200,169,122,0.18);
+      border-radius: 4px;
+      color: var(--cash);
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 7px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 150ms;
+      display: inline-block;
+    }
+
+    .report-btn:hover { background: rgba(200,169,122,0.18); }
+    .report-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+    @media (max-width: 800px) {
+      .reports-grid { grid-template-columns: 1fr; }
+    }
+
     /* Toast */
     #toast {
       position: fixed;
@@ -979,6 +1046,7 @@
       <button class="sb-item" data-tab="daily">Daily Inputs</button>
       <button class="sb-item" data-tab="calendar">Calendar</button>
       <button class="sb-item" data-tab="inventory">Inventory</button>
+      <button class="sb-item" data-tab="reports">Reports</button>
     </nav>
 
     <div class="sb-bottom">
@@ -1605,6 +1673,87 @@
       </div>
 
     </div><!-- /tab-inventory -->
+
+    <!-- ═══════════════════════════════════════════════════
+         REPORTS TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-reports">
+
+      <div style="font-family:var(--head);font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px;">Export to CSV</div>
+      <p style="font-size:12px;color:var(--t3);margin-bottom:4px;">Download any dataset as a spreadsheet. Opens directly in Excel or Google Sheets.</p>
+
+      <div class="reports-grid">
+
+        <div class="report-card">
+          <div class="report-icon">📈</div>
+          <div class="report-info">
+            <div class="report-title">Daily Revenue</div>
+            <div class="report-desc">All revenue entries — cash, Visa, Talabat gross &amp; net by date</div>
+          </div>
+          <a class="report-btn" id="exp-revenue">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">🧾</div>
+          <div class="report-info">
+            <div class="report-title">Daily Expenses</div>
+            <div class="report-desc">Every expense logged — category, item, amount, payment method</div>
+          </div>
+          <a class="report-btn" id="exp-expenses">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">🏦</div>
+          <div class="report-info">
+            <div class="report-title">Bank Transfers</div>
+            <div class="report-desc">Cash deposits, Visa settlements, Talabat payouts with period coverage</div>
+          </div>
+          <a class="report-btn" id="exp-transfers">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">💵</div>
+          <div class="report-info">
+            <div class="report-title">Cash Drawer</div>
+            <div class="report-desc">Opening cash, expected closing, actual counts and daily variance</div>
+          </div>
+          <a class="report-btn" id="exp-cash-drawer">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">📦</div>
+          <div class="report-info">
+            <div class="report-title">Inventory Checks</div>
+            <div class="report-desc">System vs physical counts with variance per item per date</div>
+          </div>
+          <a class="report-btn" id="exp-inventory">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">🔧</div>
+          <div class="report-info">
+            <div class="report-title">Setup Expenses</div>
+            <div class="report-desc">One-time startup costs by category</div>
+          </div>
+          <a class="report-btn" id="exp-setup-expenses">Download</a>
+        </div>
+
+        <div class="report-card">
+          <div class="report-icon">🔁</div>
+          <div class="report-info">
+            <div class="report-title">Recurring Expenses</div>
+            <div class="report-desc">All recurring expense definitions — frequency, amount, active status</div>
+          </div>
+          <a class="report-btn" id="exp-recurring-expenses">Download</a>
+        </div>
+
+      </div>
+
+      <div class="demo-banner" id="reports-demo-msg" style="display:none;">
+        Connect to the backend to download real data exports.
+      </div>
+
+    </div><!-- /tab-reports -->
 
   </main>
 </div>
@@ -2276,7 +2425,7 @@
       document.querySelectorAll('.sb-item').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       document.querySelectorAll('.tab-view').forEach(function(v){ v.classList.remove('visible'); });
-      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':'tab-inventory';
+      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':tab==='inventory'?'tab-inventory':'tab-reports';
       $(viewId).classList.add('visible');
       if (!tabLoaded[tab]) {
         tabLoaded[tab]=true;
@@ -2284,9 +2433,36 @@
         else if (tab==='daily')    loadDailyTab();
         else if (tab==='calendar') loadCalendar();
         else if (tab==='inventory') loadInventory();
+        else if (tab==='reports')   setupReports();
       }
     });
   });
+
+  /* ═══════════════════════════════════════════════════════
+     REPORTS TAB
+  ═══════════════════════════════════════════════════════ */
+  var EXPORTS = [
+    { id: 'exp-revenue',            table: 'revenue' },
+    { id: 'exp-expenses',           table: 'expenses' },
+    { id: 'exp-transfers',          table: 'transfers' },
+    { id: 'exp-cash-drawer',        table: 'cash-drawer' },
+    { id: 'exp-inventory',          table: 'inventory' },
+    { id: 'exp-setup-expenses',     table: 'setup-expenses' },
+    { id: 'exp-recurring-expenses', table: 'recurring-expenses' },
+  ];
+
+  function setupReports() {
+    if (IS_DEMO) {
+      EXPORTS.forEach(function(e){ var el=$(e.id); if(el) el.classList.add('disabled'); });
+      var msg=$('reports-demo-msg'); if(msg) msg.style.display='block';
+      return;
+    }
+    EXPORTS.forEach(function(e){
+      var el=$(e.id); if(!el) return;
+      el.href = base() + '/export/' + e.table;
+      el.setAttribute('download', 'optimize-' + e.table + '.csv');
+    });
+  }
 
   /* ── Logout ──────────────────────────────────────────── */
   $('sb-logout').addEventListener('click', function(){
