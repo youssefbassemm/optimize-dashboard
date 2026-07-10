@@ -1048,6 +1048,14 @@
       .fc-summary-row { grid-template-columns: 1fr 1fr; }
     }
 
+    /* ── Today's Revenue card ────────────────────────────── */
+    .today-rev-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; }
+    .rev-rating { display:inline-block; padding:2px 9px; border-radius:4px; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap; }
+    .rev-rating.great { background:rgba(90,153,104,.15);  color:var(--pos); }
+    .rev-rating.good  { background:rgba(200,169,122,.12); color:var(--cash); }
+    .rev-rating.low   { background:rgba(155,91,91,.12);   color:var(--neg); }
+    .rev-rating.idle  { background:var(--rule);            color:var(--t3); }
+
     /* ── Forecast tab ─────────────────────────────────────── */
     .fc-summary-row {
       display: grid;
@@ -1175,9 +1183,12 @@
           <div class="card-sub" id="sub-revenue">loading…</div>
         </div>
         <div class="card metric-card">
-          <div class="card-label">Net Cash Position</div>
-          <div class="card-value" id="val-net">—</div>
-          <div class="card-sub">revenue − all expenses</div>
+          <div class="card-label">Today's Revenue</div>
+          <div class="card-value" id="val-today-rev">—</div>
+          <div class="today-rev-row">
+            <div class="card-sub" id="sub-today-rev">—</div>
+            <span class="rev-rating idle" id="today-rev-rating" style="display:none;"></span>
+          </div>
         </div>
         <div class="card metric-card">
           <div class="card-label">Avg Daily Revenue</div>
@@ -2008,19 +2019,62 @@
     if (fill) fill.style.width = Math.min(s.season.percent, 100) + '%';
   }
 
-  function renderMetrics(s) {
+  function renderMetrics(s, revRows) {
     set('val-revenue', fmtEGP(s.revenue.totalRevenue));
     set('sub-revenue', s.revenue.daysWithRevenue + ' days recorded');
-    var netEl = $('val-net');
-    var net = s.netPosition.netCashGenerated;
-    netEl.textContent = fmtEGP(net);
-    netEl.className = 'card-value' + (net > 0 ? ' pos' : net < 0 ? ' neg' : '');
     set('val-avg', fmtEGP(s.revenue.avgDailyRevenue));
     set('sub-avg', 'over ' + s.revenue.daysWithRevenue + ' operating days');
     var pct = s.netPosition.setupRecoveredPercent;
     set('val-recovery', fmtPct(pct));
     var rf = $('recovery-fill');
     if (rf) rf.style.width = Math.min(pct, 100) + '%';
+
+    // Today's Revenue card
+    var todayEl    = $('val-today-rev');
+    var subEl      = $('sub-today-rev');
+    var ratingEl   = $('today-rev-rating');
+    var rows       = revRows || [];
+    var todayKey   = todayStr();
+    var todayRow   = null;
+    for (var i = rows.length - 1; i >= 0; i--) { if (rows[i].date === todayKey) { todayRow = rows[i]; break; } }
+    var todayActual = todayRow ? (todayRow.revenue_cash||0) + (todayRow.revenue_visa||0) + (todayRow.revenue_talabat_gross||0) : null;
+
+    // Weekday expected: average all historical rows (excl. today) for the same day-of-week
+    var todayWd = new Date(todayKey+'T12:00:00Z').getUTCDay();
+    var wdDays  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var wdSum = 0, wdCnt = 0;
+    rows.forEach(function(r) {
+      if (r.date === todayKey) return;
+      if (new Date(r.date+'T12:00:00Z').getUTCDay() === todayWd) {
+        wdSum += (r.revenue_cash||0) + (r.revenue_visa||0) + (r.revenue_talabat_gross||0);
+        wdCnt++;
+      }
+    });
+    var expected = wdCnt > 0 ? Math.round(wdSum / wdCnt) : (s.revenue.avgDailyRevenue || 0);
+    var dayLabel = wdDays[todayWd] + ' avg' + (wdCnt > 0 ? ' ('+wdCnt+'wks)' : '');
+
+    if (todayActual != null) {
+      todayEl.textContent = fmtEGP(todayActual);
+      var ratio = expected > 0 ? todayActual / expected : 1;
+      var diff  = expected > 0 ? Math.round((ratio - 1) * 100) : 0;
+      var sign  = diff >= 0 ? '+' : '';
+      var rClass, rLabel;
+      if (ratio >= 1.10)      { rClass = 'great'; rLabel = sign + diff + '% vs avg'; }
+      else if (ratio >= 0.90) { rClass = 'good';  rLabel = sign + diff + '% vs avg'; }
+      else                    { rClass = 'low';   rLabel = sign + diff + '% vs avg'; }
+      todayEl.className  = 'card-value' + (ratio >= 1.10 ? ' pos' : ratio < 0.75 ? ' neg' : '');
+      subEl.textContent  = 'Expected ' + fmtEGP(expected) + ' · ' + dayLabel;
+      ratingEl.textContent = rLabel;
+      ratingEl.className   = 'rev-rating ' + rClass;
+      ratingEl.style.display = 'inline-block';
+    } else {
+      todayEl.textContent    = '—';
+      todayEl.className      = 'card-value';
+      subEl.textContent      = 'Expected ' + fmtEGP(expected) + ' · ' + dayLabel;
+      ratingEl.textContent   = 'Not logged';
+      ratingEl.className     = 'rev-rating idle';
+      ratingEl.style.display = 'inline-block';
+    }
   }
 
   function renderBalances(s, drawer) {
@@ -2126,7 +2180,7 @@
       api(base()+'/cash-drawer/'+today),
     ]).then(function(res){
       var summary=res[0], revRows=res[1], drawer=res[2];
-      if (summary) { renderSeason(summary); renderMetrics(summary); renderBalances(summary,drawer); renderStatus(summary.todayStatus); renderDonut(summary.revenue); }
+      if (summary) { renderSeason(summary); renderMetrics(summary, revRows); renderBalances(summary,drawer); renderStatus(summary.todayStatus); renderDonut(summary.revenue); }
       _lastBarRows = revRows && revRows.length ? revRows : null;
       requestAnimationFrame(function(){ drawBars(_lastBarRows||[]); });
     });
@@ -2160,7 +2214,7 @@
   function loadDemo() {
     var demo=buildDemoData();
     set('sb-brand-name','Demo Brand');
-    renderSeason(demo.summary); renderMetrics(demo.summary); renderBalances(demo.summary,demo.cashDrawer);
+    renderSeason(demo.summary); renderMetrics(demo.summary, demo.revenueRows); renderBalances(demo.summary,demo.cashDrawer);
     renderStatus(demo.summary.todayStatus); renderDonut(demo.summary.revenue);
     _lastBarRows=demo.revenueRows;
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawBars(demo.revenueRows); }); });
