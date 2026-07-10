@@ -285,6 +285,16 @@ router.delete('/brands/:brand_id', (req, res) => {
       db.db.prepare('DELETE FROM ig_cache              WHERE brand_id = ?').run(brand_id);
       db.db.prepare('DELETE FROM sync_logs             WHERE brand_id = ?').run(brand_id);
       db.db.prepare('DELETE FROM webhook_queue         WHERE brand_id = ?').run(brand_id);
+      // Food-brand tables
+      db.db.prepare('DELETE FROM fb_settings           WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_setup_expenses     WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_recurring_expenses WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_daily_revenue      WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_daily_expenses     WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_bank_transfers     WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_cash_drawer_check  WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_inventory_check    WHERE brand_id = ?').run(brand_id);
+      db.db.prepare('DELETE FROM fb_calendar_notes     WHERE brand_id = ?').run(brand_id);
       // Remove user-brand links; delete orphaned users
       const userIds = db.db.prepare('SELECT user_id FROM user_brands WHERE brand_id = ?')
         .all(brand_id).map(r => r.user_id);
@@ -306,6 +316,21 @@ router.delete('/brands/:brand_id', (req, res) => {
     console.error('[admin] brand delete error:', err.message);
     return res.status(500).json({ ok: false, error: err.message });
   }
+});
+
+// ── POST /api/admin/brands/:brand_id/set-type ────────────────────────────────
+router.post('/brands/:brand_id/set-type', (req, res) => {
+  const { brand_id } = req.params;
+  const { business_type } = req.body || {};
+  const VALID = ['ecommerce', 'food_brand'];
+  if (!business_type || !VALID.includes(business_type)) {
+    return res.status(400).json({ ok: false, error: 'business_type must be "ecommerce" or "food_brand"' });
+  }
+  const brand = db.getBrand(brand_id);
+  if (!brand) return res.status(404).json({ ok: false, error: 'Brand not found' });
+  db.setBrandBusinessType(brand_id, business_type);
+  console.log(`[admin] set business_type=${business_type} for brand=${brand_id}`);
+  return res.json({ ok: true, brand_id, business_type });
 });
 
 module.exports = router;

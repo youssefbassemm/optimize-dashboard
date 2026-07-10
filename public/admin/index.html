@@ -356,7 +356,12 @@ function renderBrands(brands){
           ? '<button class="btn btn-paid" onclick="setTier(\''+esc(b.id)+'\',\'paid\')">→ Paid</button>'
           : '<button class="btn btn-neg" onclick="setTier(\''+esc(b.id)+'\',\'free\')">→ Free</button>'
         )
+        +' '+(b.business_type==='food_brand'
+          ? '<button class="btn" style="border-color:rgba(110,151,184,.3);color:#6E97B8" onclick="setType(\''+esc(b.id)+'\',\'ecommerce\')">→ Ecomm</button>'
+          : '<button class="btn" style="border-color:rgba(184,144,74,.3);color:var(--warn)" onclick="setType(\''+esc(b.id)+'\',\'food_brand\')">→ Food</button>'
+        )
         +' <button class="btn" onclick="showDetail(\''+esc(b.id)+'\')">Detail</button>'
+        +' <button class="btn btn-neg" onclick="deleteBrand(\''+esc(b.id)+'\',\''+esc(b.name)+'\')">Delete</button>'
       +'</td>'
       +'</tr>';
   }).join('');
@@ -382,6 +387,30 @@ window.setTier = function(brandId, tier){
   }).then(function(d){
     if(!d) return;
     if(d.ok){ toast('Tier updated → '+tier,'ok'); loadBrands(); }
+    else toast(d.error||'Failed','err');
+  });
+};
+
+window.setType = function(brandId, type){
+  var label = type === 'food_brand' ? 'Food & Beverage' : 'Ecommerce';
+  if(!confirm('Switch "'+brandId+'" to '+label+'?')) return;
+  api('/api/admin/brands/'+brandId+'/set-type',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({business_type:type})
+  }).then(function(d){
+    if(!d) return;
+    if(d.ok){ toast('Type → '+label,'ok'); loadBrands(); }
+    else toast(d.error||'Failed','err');
+  });
+};
+
+window.deleteBrand = function(brandId, name){
+  if(!confirm('DELETE "'+name+'" ('+brandId+') and ALL its data? This cannot be undone.')) return;
+  if(!confirm('Second confirm: permanently delete "'+name+'"?')) return;
+  api('/api/admin/brands/'+brandId,{method:'DELETE'}).then(function(d){
+    if(!d) return;
+    if(d.ok){ toast('Deleted '+name,'ok'); loadBrands(); }
     else toast(d.error||'Failed','err');
   });
 };
