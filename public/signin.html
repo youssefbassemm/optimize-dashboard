@@ -472,7 +472,7 @@
   if (stored) {
     fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + stored } })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (d && d.ok && !d.dev_mode) window.location.replace('/dashboard'); })
+      .then(function (d) { if (d && d.ok && !d.dev_mode) window.location.replace(d.business_type === 'food_brand' ? '/food-brand' : '/dashboard'); })
       .catch(function () {});
   }
 
@@ -544,6 +544,8 @@
       // ONBOARDING_FLOW — if backend signals onboarding incomplete, go there first
       if (data.needs_onboarding) {
         window.location.replace('/onboarding');
+      } else if (data.business_type === 'food_brand') {
+        window.location.replace('/food-brand');
       } else {
         window.location.replace('/dashboard');
       }

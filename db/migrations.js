@@ -905,32 +905,16 @@ function runMigrations() {
   `);
 
   // ── Remove bunzyeg@gmail.com so they can re-register as food_brand ─────────
-  // Idempotent: if the user is already gone this is a fast no-op.
+  // Uses CASCADE deletes: brands → all brand tables; users → sessions + tokens.
   try {
-    const user = db.prepare("SELECT id FROM users WHERE email = 'bunzyeg@gmail.com'").get();
-    if (user) {
-      const brandIds = db.prepare('SELECT brand_id FROM user_brands WHERE user_id = ?')
-        .all(user.id).map(r => r.brand_id);
-      const BRAND_TABLES = [
-        'cx_messages','cx_flows','cx_settings','impersonation_sessions',
-        'integrations','tier_changes','events','orders_cache','order_items',
-        'inventory_cache','campaign_cache','ig_cache','sync_logs','webhook_queue',
-        'fb_settings','fb_setup_expenses','fb_recurring_expenses',
-        'fb_daily_revenue','fb_daily_expenses','fb_bank_transfers',
-        'fb_cash_drawer_check','fb_inventory_check','fb_calendar_notes',
-        'user_brands',
-      ];
-      db.transaction(() => {
-        for (const brandId of brandIds) {
-          for (const t of BRAND_TABLES) {
-            try { db.prepare(`DELETE FROM ${t} WHERE brand_id = ?`).run(brandId); } catch (_) {}
-          }
-          try { db.prepare('DELETE FROM brands WHERE id = ?').run(brandId); } catch (_) {}
-        }
-        try { db.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id); } catch (_) {}
-        try { db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(user.id); } catch (_) {}
-        db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
-      })();
+    const bunzyUser = db.prepare("SELECT id FROM users WHERE email = 'bunzyeg@gmail.com'").get();
+    if (bunzyUser) {
+      const bunzyBrands = db.prepare('SELECT brand_id FROM user_brands WHERE user_id = ?')
+        .all(bunzyUser.id);
+      for (const row of bunzyBrands) {
+        db.prepare('DELETE FROM brands WHERE id = ?').run(row.brand_id);
+      }
+      db.prepare('DELETE FROM users WHERE id = ?').run(bunzyUser.id);
       console.log('[migrations] purged bunzyeg@gmail.com — free to re-register');
     }
   } catch (err) {

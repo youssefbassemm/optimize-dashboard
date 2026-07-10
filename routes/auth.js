@@ -418,6 +418,7 @@ router.post('/login', authGuard, async (req, res) => {
       ok:               true,
       token,
       tier:             brandTier,
+      business_type:    brandRow?.business_type || 'ecommerce',
       user:             { id: user.id, email: user.email, name: user.name, role: user.role },
       brand_id:         brandId,
       brand_name:       brandRow?.name || null,
