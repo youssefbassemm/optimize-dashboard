@@ -661,4 +661,29 @@ router.post('/reset-password', authGuard, async (req, res) => {
   }
 });
 
+// ── POST /api/auth/change-password ───────────────────────────────────────────
+// Authenticated users change their own password (no token needed).
+router.post('/change-password', authGuard, requireAuth, async (req, res) => {
+  const { current_password, new_password } = req.body;
+  if (!current_password || !new_password) {
+    return res.status(400).json({ ok: false, error: 'current_password and new_password are required' });
+  }
+  if (new_password.length < 8) {
+    return res.status(400).json({ ok: false, error: 'New password must be at least 8 characters' });
+  }
+  try {
+    const user = db.db.prepare('SELECT id, password_hash FROM users WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ ok: false, error: 'User not found' });
+    const match = await bcrypt.compare(current_password, user.password_hash);
+    if (!match) return res.status(401).json({ ok: false, error: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(new_password, BCRYPT_ROUNDS);
+    db.db.prepare('UPDATE users SET password_hash = ?, updated_at = datetime(\'now\') WHERE id = ?').run(newHash, user.id);
+    console.log(`[auth] password changed for user_id=${user.id}`);
+    res.json({ ok: true, message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('[auth] change-password error:', err.message);
+    res.status(500).json({ ok: false, error: 'Failed to change password' });
+  }
+});
+
 module.exports = router;

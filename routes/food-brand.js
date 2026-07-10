@@ -20,6 +20,15 @@ function getTalabatRate(brandId) {
   return row ? parseFloat(row.value) : cfg.DEFAULT_TALABAT_COMMISSION_RATE;
 }
 
+function getSeasonDates(brandId) {
+  const startRow = db.getFbSetting(brandId, 'season_start');
+  const endRow   = db.getFbSetting(brandId, 'season_end');
+  return {
+    start: startRow?.value || cfg.SEASON.START,
+    end:   endRow?.value   || cfg.SEASON.END,
+  };
+}
+
 function attachExpected(brandId, rows) {
   const rate = getTalabatRate(brandId);
   return rows.map(row => {
@@ -32,7 +41,8 @@ function attachExpected(brandId, rows) {
 
 function computeCashDrawer(brandId, date) {
   const row = db.getFbCashDrawer(brandId, date);
-  const isSeasonStart = date === cfg.SEASON.START;
+  const { start: seasonStart } = getSeasonDates(brandId);
+  const isSeasonStart = date === seasonStart;
   let openingCash = row?.opening_cash ?? null;
   let openingSource = 'manual';
 
@@ -461,7 +471,8 @@ router.get('/summary', (req, res) => {
   const { brand_id } = req.params;
   const rate  = getTalabatRate(brand_id);
   const today = calc.todayStr();
-  const progress = calc.seasonProgress(today);
+  const { start: seasonStart, end: seasonEnd } = getSeasonDates(brand_id);
+  const progress = calc.seasonProgress(today, seasonStart, seasonEnd);
 
   const revenueRows   = db.db.prepare('SELECT * FROM fb_daily_revenue WHERE brand_id = ?').all(brand_id);
   const cashRevenue   = revenueRows.reduce((a, r) => a + r.revenue_cash, 0);

@@ -1048,6 +1048,55 @@
       .fc-summary-row { grid-template-columns: 1fr 1fr; }
     }
 
+    /* ── Settings tab ────────────────────────────────────── */
+    .settings-section { margin-bottom: 16px; }
+    .settings-section .sec-title { font-size: 11px; letter-spacing: .1em; }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label { flex: 1; }
+    .settings-row-label strong { font-size: 13px; color: var(--t1); display: block; margin-bottom: 2px; }
+    .settings-row-label span  { font-size: 11px; color: var(--t3); }
+    .settings-row-ctrl { display: flex; align-items: center; gap: 8px; }
+    .settings-input { background: var(--lift); border: 1px solid var(--rule-hi); border-radius: 6px; color: var(--t1); font-size: 13px; padding: 7px 12px; width: 200px; outline: none; transition: border-color .15s; }
+    .settings-input:focus { border-color: var(--cash); }
+    .settings-input.narrow { width: 100px; }
+    .settings-input.wide   { width: 280px; }
+    .settings-save-btn { background: var(--cash); color: #0A0908; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 7px 16px; cursor: pointer; letter-spacing: .04em; transition: opacity .15s; }
+    .settings-save-btn:hover { opacity: .85; }
+    .settings-save-btn.ghost { background: none; border: 1px solid var(--rule-hi); color: var(--t2); }
+    .settings-save-btn.ghost:hover { border-color: var(--t2); color: var(--t1); }
+    .settings-save-btn.danger { background: var(--neg); color: #fff; }
+    .settings-status { font-size: 11px; color: var(--pos); opacity: 0; transition: opacity .3s; }
+    .settings-status.show { opacity: 1; }
+    .settings-status.err { color: var(--neg); }
+    /* Peak day pills */
+    .peak-days-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+    .peak-day-pill { cursor: pointer; }
+    .peak-day-pill input { display: none; }
+    .peak-day-pill span {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: .05em;
+      background: var(--rule); color: var(--t2); border: 1px solid transparent;
+      transition: all .15s; cursor: pointer;
+    }
+    .peak-day-pill input:checked + span { background: rgba(200,169,122,.15); color: var(--cash); border-color: rgba(200,169,122,.3); }
+    /* Accent theme swatches */
+    .theme-swatches { display: flex; gap: 8px; }
+    .theme-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color .15s, transform .15s; }
+    .theme-swatch:hover { transform: scale(1.1); }
+    .theme-swatch.active { border-color: var(--t1); }
+    /* Change password inline form */
+    .pw-form { display: none; padding: 14px 20px 18px; border-top: 1px solid var(--rule); gap: 10px; flex-direction: column; }
+    .pw-form.open { display: flex; }
+    .pw-form input { background: var(--lift); border: 1px solid var(--rule-hi); border-radius: 6px; color: var(--t1); font-size: 13px; padding: 8px 12px; outline: none; width: 260px; }
+    .pw-form input:focus { border-color: var(--cash); }
+
     /* ── Today's Revenue card ────────────────────────────── */
     .today-rev-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; }
     .rev-rating { display:inline-block; padding:2px 9px; border-radius:4px; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap; }
@@ -1151,6 +1200,7 @@
       <button class="sb-item" data-tab="inventory">Inventory</button>
       <button class="sb-item" data-tab="forecast">Forecast</button>
       <button class="sb-item" data-tab="reports">Reports</button>
+      <button class="sb-item" data-tab="settings">Settings</button>
     </nav>
 
     <div class="sb-bottom">
@@ -1924,6 +1974,179 @@
 
     </div><!-- /tab-reports -->
 
+    <!-- ═══════════════════════════════════════════════════
+         SETTINGS TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-settings">
+
+      <!-- Business -->
+      <div class="sec-card settings-section">
+        <div class="sec-head"><div class="sec-title">Business</div></div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Brand Name</strong>
+            <span>Displayed in the sidebar and exports</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <input type="text" id="st-brand-name" class="settings-input" placeholder="Your brand name"/>
+            <button class="settings-save-btn" id="st-brand-name-save">Save</button>
+            <span class="settings-status" id="st-brand-name-status"></span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Season Period</strong>
+            <span>Used for season progress bar and all aggregates</span>
+          </div>
+          <div class="settings-row-ctrl" style="flex-wrap:wrap;gap:8px;">
+            <input type="date" id="st-season-start" class="settings-input narrow" title="Season start"/>
+            <span style="color:var(--t3);font-size:12px;">to</span>
+            <input type="date" id="st-season-end" class="settings-input narrow" title="Season end"/>
+            <button class="settings-save-btn" id="st-season-save">Save</button>
+            <span class="settings-status" id="st-season-status"></span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Peak Days</strong>
+            <span>Days expected to have higher revenue (highlights in forecast)</span>
+          </div>
+          <div class="settings-row-ctrl" style="flex-direction:column;align-items:flex-start;gap:10px;">
+            <div class="peak-days-wrap" id="st-peak-days">
+              <label class="peak-day-pill"><input type="checkbox" value="0"/><span>Sun</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="1"/><span>Mon</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="2"/><span>Tue</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="3"/><span>Wed</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="4"/><span>Thu</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="5"/><span>Fri</span></label>
+              <label class="peak-day-pill"><input type="checkbox" value="6"/><span>Sat</span></label>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="settings-save-btn" id="st-peak-save">Save</button>
+              <span class="settings-status" id="st-peak-status"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Channels -->
+      <div class="sec-card settings-section">
+        <div class="sec-head"><div class="sec-title">Revenue Channels</div></div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Talabat Commission Rate</strong>
+            <span>Deducted from Talabat gross revenue to calculate net payout</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <input type="number" id="st-talabat-rate" class="settings-input narrow" min="0" max="100" step="0.1" placeholder="13"/>
+            <span style="color:var(--t2);font-size:13px;">%</span>
+            <button class="settings-save-btn" id="st-talabat-save">Save</button>
+            <span class="settings-status" id="st-talabat-status"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appearance -->
+      <div class="sec-card settings-section">
+        <div class="sec-head"><div class="sec-title">Appearance</div></div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Accent Color</strong>
+            <span>Changes highlights, charts, and active states</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <div class="theme-swatches">
+              <div class="theme-swatch active" data-theme="gold"  style="background:#C8A97A;" title="Warm Gold"></div>
+              <div class="theme-swatch" data-theme="blue"  style="background:#6E97B8;" title="Cool Blue"></div>
+              <div class="theme-swatch" data-theme="sage"  style="background:#5A9968;" title="Sage Green"></div>
+              <div class="theme-swatch" data-theme="rose"  style="background:#C87A8A;" title="Dusty Rose"></div>
+              <div class="theme-swatch" data-theme="stone" style="background:#A09080;" title="Stone"></div>
+            </div>
+            <span class="settings-status" id="st-theme-status" style="margin-left:8px;"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="sec-card settings-section">
+        <div class="sec-head"><div class="sec-title">Alerts &amp; Thresholds</div></div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Revenue Warning</strong>
+            <span>Show "Below" rating on Today's Revenue card when actual falls below this % of weekday average</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <input type="number" id="st-rev-threshold" class="settings-input narrow" min="0" max="100" placeholder="75"/>
+            <span style="color:var(--t2);font-size:13px;">% of avg</span>
+            <button class="settings-save-btn" id="st-rev-threshold-save">Save</button>
+            <span class="settings-status" id="st-rev-threshold-status"></span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Inventory Alert</strong>
+            <span>Show "SOON" warning in Restock Forecast when days remaining falls below this</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <input type="number" id="st-inv-threshold" class="settings-input narrow" min="1" max="60" placeholder="7"/>
+            <span style="color:var(--t2);font-size:13px;">days</span>
+            <button class="settings-save-btn" id="st-inv-threshold-save">Save</button>
+            <span class="settings-status" id="st-inv-threshold-status"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="sec-card settings-section">
+        <div class="sec-head"><div class="sec-title">Account</div></div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Signed in as</strong>
+            <span id="st-account-email">—</span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Change Password</strong>
+            <span>Update your login password</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <button class="settings-save-btn ghost" id="st-pw-toggle">Change</button>
+          </div>
+        </div>
+        <div class="pw-form" id="st-pw-form">
+          <input type="password" id="st-pw-current" placeholder="Current password" autocomplete="current-password"/>
+          <input type="password" id="st-pw-new"     placeholder="New password (min 8 chars)" autocomplete="new-password"/>
+          <input type="password" id="st-pw-confirm" placeholder="Confirm new password" autocomplete="new-password"/>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="settings-save-btn" id="st-pw-save">Update Password</button>
+            <button class="settings-save-btn ghost" id="st-pw-cancel">Cancel</button>
+            <span class="settings-status" id="st-pw-status"></span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <strong>Sign Out</strong>
+            <span>End your current session</span>
+          </div>
+          <div class="settings-row-ctrl">
+            <button class="settings-save-btn ghost" id="st-signout-btn">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-settings -->
+
   </main>
 </div>
 
@@ -2637,7 +2860,7 @@
       document.querySelectorAll('.sb-item').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       document.querySelectorAll('.tab-view').forEach(function(v){ v.classList.remove('visible'); });
-      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':tab==='inventory'?'tab-inventory':tab==='forecast'?'tab-forecast':'tab-reports';
+      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':tab==='inventory'?'tab-inventory':tab==='forecast'?'tab-forecast':tab==='settings'?'tab-settings':'tab-reports';
       $(viewId).classList.add('visible');
       if (!tabLoaded[tab]) {
         tabLoaded[tab]=true;
@@ -2647,6 +2870,7 @@
         else if (tab==='inventory') loadInventory();
         else if (tab==='forecast')  loadForecast();
         else if (tab==='reports')   setupReports();
+        else if (tab==='settings')  loadSettings();
       }
     });
   });
@@ -2883,6 +3107,198 @@
     set('sb-brand-name', me.brand_name||me.brand_id);
     loadHomeData();
   }).catch(function(){ IS_DEMO=true; set('sb-brand-name','Demo Brand'); loadDemo(); });
+
+  /* ═══════════════════════════════════════════════════════
+     SETTINGS TAB
+  ═══════════════════════════════════════════════════════ */
+
+  var ACCENT_THEMES = {
+    gold:  { cash: '#C8A97A', visa: '#6E97B8', talabat: '#A47455', pos: '#5A9968', neg: '#9B5B5B' },
+    blue:  { cash: '#6E97B8', visa: '#8AB4C8', talabat: '#5A8FAA', pos: '#5A9968', neg: '#9B5B5B' },
+    sage:  { cash: '#5A9968', visa: '#6E97B8', talabat: '#7AA870', pos: '#5A9968', neg: '#9B5B5B' },
+    rose:  { cash: '#C87A8A', visa: '#A87AB8', talabat: '#C87A70', pos: '#5A9968', neg: '#9B5B5B' },
+    stone: { cash: '#A09080', visa: '#8090A0', talabat: '#907060', pos: '#5A9968', neg: '#9B5B5B' },
+  };
+
+  function applyAccentTheme(name) {
+    var t = ACCENT_THEMES[name]; if (!t) return;
+    var r = document.documentElement.style;
+    r.setProperty('--cash',    t.cash);
+    r.setProperty('--visa',    t.visa);
+    r.setProperty('--talabat', t.talabat);
+    r.setProperty('--pos',     t.pos);
+    r.setProperty('--neg',     t.neg);
+    document.querySelectorAll('.theme-swatch').forEach(function(s){
+      s.classList.toggle('active', s.dataset.theme === name);
+    });
+    localStorage.setItem('fb_accent_theme', name);
+  }
+
+  function settingsFlash(statusId, msg, isErr) {
+    var el = $(statusId); if (!el) return;
+    el.textContent = msg;
+    el.className = 'settings-status show' + (isErr ? ' err' : '');
+    setTimeout(function(){ el.className = 'settings-status'; }, 2500);
+  }
+
+  function fbSettingPut(key, value, statusId) {
+    if (IS_DEMO) { settingsFlash(statusId, 'Demo mode — changes not saved', true); return; }
+    api(base()+'/settings', { method:'PUT', body: JSON.stringify({ key: key, value: value }) })
+      .then(function(r){ settingsFlash(statusId, r && r.ok ? 'Saved ✓' : 'Error', !r || !r.ok); });
+  }
+
+  function loadSettings() {
+    // Restore saved accent theme
+    var savedTheme = localStorage.getItem('fb_accent_theme') || 'gold';
+    applyAccentTheme(savedTheme);
+
+    // Populate alert thresholds from localStorage
+    var revThr = localStorage.getItem('fb_rev_threshold') || '75';
+    var invThr = localStorage.getItem('fb_inv_threshold') || '7';
+    var revEl = $('st-rev-threshold'), invEl = $('st-inv-threshold');
+    if (revEl) revEl.value = revThr;
+    if (invEl) invEl.value = invThr;
+
+    if (IS_DEMO) {
+      // Populate with demo defaults
+      var bn = $('st-brand-name'); if (bn) bn.value = 'Demo Brand';
+      var ss = $('st-season-start'); if (ss) ss.value = '2026-06-01';
+      var se = $('st-season-end');   if (se) se.value = '2026-09-30';
+      var tr = $('st-talabat-rate'); if (tr) tr.value = '13';
+      setPeakDays([4,5,6]);
+      var ae = $('st-account-email'); if (ae) ae.textContent = 'demo@example.com';
+      wireSettingsEvents();
+      return;
+    }
+
+    // Load fb settings (season, talabat rate, peak days)
+    Promise.all([
+      api(base()+'/settings'),
+      api('/api/me'),
+    ]).then(function(res) {
+      var fbSettings = res[0] || [];
+      var me         = res[1] || {};
+      var settMap = {};
+      (Array.isArray(fbSettings) ? fbSettings : []).forEach(function(r){ settMap[r.key] = r.value; });
+
+      var bn = $('st-brand-name'); if (bn) bn.value = me.brand_name || '';
+      var ss = $('st-season-start'); if (ss) ss.value = settMap['season_start'] || '2026-06-01';
+      var se = $('st-season-end');   if (se) se.value = settMap['season_end']   || '2026-09-30';
+      var tr = $('st-talabat-rate'); if (tr) tr.value = settMap['talabat_commission_rate'] ? (parseFloat(settMap['talabat_commission_rate'])*100).toFixed(1) : '13';
+      var peaks = settMap['peak_weekdays'] ? settMap['peak_weekdays'].split(',').map(Number) : [4,5,6];
+      setPeakDays(peaks);
+      var ae = $('st-account-email'); if (ae) ae.textContent = me.email || me.brand_id || '—';
+      wireSettingsEvents();
+    });
+  }
+
+  function setPeakDays(days) {
+    document.querySelectorAll('#st-peak-days input[type=checkbox]').forEach(function(cb){
+      cb.checked = days.indexOf(parseInt(cb.value)) !== -1;
+    });
+  }
+
+  var _settingsWired = false;
+  function wireSettingsEvents() {
+    if (_settingsWired) return;
+    _settingsWired = true;
+
+    // Brand name
+    $('st-brand-name-save').addEventListener('click', function(){
+      var v = $('st-brand-name').value.trim();
+      if (!v) { settingsFlash('st-brand-name-status','Name required',true); return; }
+      if (IS_DEMO) { settingsFlash('st-brand-name-status','Demo — not saved',true); return; }
+      api('/api/'+BRAND_ID+'/settings', { method:'POST', body: JSON.stringify({ name: v }) })
+        .then(function(r){
+          if (r && r.ok) { set('sb-brand-name', v); settingsFlash('st-brand-name-status','Saved ✓'); }
+          else settingsFlash('st-brand-name-status','Error',true);
+        });
+    });
+
+    // Season dates
+    $('st-season-save').addEventListener('click', function(){
+      var s = $('st-season-start').value, e = $('st-season-end').value;
+      if (!s || !e) { settingsFlash('st-season-status','Both dates required',true); return; }
+      if (s >= e)   { settingsFlash('st-season-status','Start must be before end',true); return; }
+      fbSettingPut('season_start', s, 'st-season-status');
+      fbSettingPut('season_end',   e, 'st-season-status');
+      tabLoaded['home'] = false; // force home to reload with new season
+    });
+
+    // Peak days
+    $('st-peak-save').addEventListener('click', function(){
+      var checked = [];
+      document.querySelectorAll('#st-peak-days input:checked').forEach(function(cb){ checked.push(cb.value); });
+      fbSettingPut('peak_weekdays', checked.join(','), 'st-peak-status');
+    });
+
+    // Talabat rate
+    $('st-talabat-save').addEventListener('click', function(){
+      var v = parseFloat($('st-talabat-rate').value);
+      if (isNaN(v) || v < 0 || v > 100) { settingsFlash('st-talabat-status','Enter 0–100',true); return; }
+      fbSettingPut('talabat_commission_rate', (v/100).toFixed(4), 'st-talabat-status');
+      tabLoaded['home'] = false;
+    });
+
+    // Accent theme swatches
+    document.querySelectorAll('.theme-swatch').forEach(function(sw){
+      sw.addEventListener('click', function(){
+        applyAccentTheme(sw.dataset.theme);
+        settingsFlash('st-theme-status', 'Applied ✓');
+      });
+    });
+
+    // Alert thresholds (localStorage only)
+    $('st-rev-threshold-save').addEventListener('click', function(){
+      var v = parseInt($('st-rev-threshold').value);
+      if (isNaN(v)||v<0||v>100){ settingsFlash('st-rev-threshold-status','Enter 0–100',true); return; }
+      localStorage.setItem('fb_rev_threshold', v);
+      settingsFlash('st-rev-threshold-status','Saved ✓');
+    });
+    $('st-inv-threshold-save').addEventListener('click', function(){
+      var v = parseInt($('st-inv-threshold').value);
+      if (isNaN(v)||v<1){ settingsFlash('st-inv-threshold-status','Enter a positive number',true); return; }
+      localStorage.setItem('fb_inv_threshold', v);
+      settingsFlash('st-inv-threshold-status','Saved ✓');
+    });
+
+    // Change password toggle
+    $('st-pw-toggle').addEventListener('click', function(){
+      var f = $('st-pw-form');
+      f.classList.toggle('open');
+      this.textContent = f.classList.contains('open') ? 'Cancel' : 'Change';
+    });
+    $('st-pw-cancel').addEventListener('click', function(){
+      $('st-pw-form').classList.remove('open');
+      $('st-pw-toggle').textContent = 'Change';
+    });
+    $('st-pw-save').addEventListener('click', function(){
+      var cur  = $('st-pw-current').value;
+      var nw   = $('st-pw-new').value;
+      var conf = $('st-pw-confirm').value;
+      if (!cur||!nw||!conf){ settingsFlash('st-pw-status','All fields required',true); return; }
+      if (nw !== conf){ settingsFlash('st-pw-status','Passwords do not match',true); return; }
+      if (nw.length < 8){ settingsFlash('st-pw-status','Min 8 characters',true); return; }
+      if (IS_DEMO){ settingsFlash('st-pw-status','Demo — not saved',true); return; }
+      api('/api/auth/change-password', { method:'POST', body: JSON.stringify({ current_password: cur, new_password: nw }) })
+        .then(function(r){
+          if (r && r.ok) {
+            settingsFlash('st-pw-status','Updated ✓');
+            $('st-pw-current').value=''; $('st-pw-new').value=''; $('st-pw-confirm').value='';
+            $('st-pw-form').classList.remove('open');
+            $('st-pw-toggle').textContent = 'Change';
+          } else {
+            settingsFlash('st-pw-status', (r&&r.error)||'Error', true);
+          }
+        });
+    });
+
+    // Sign out
+    $('st-signout-btn').addEventListener('click', function(){
+      if (IS_DEMO) { window.location.reload(); return; }
+      api('/api/auth/logout', { method:'POST' }).then(function(){ window.location.replace('/signin.html'); });
+    });
+  }
 
 })();
 </script>
