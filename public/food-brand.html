@@ -6,158 +6,1606 @@
   <title>Dashboard — Optimize</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --t1:   #F0F0F0;
-      --t2:   #888888;
-      --t3:   #555555;
-      --bg:   #0A0A0A;
-      --sb:   #111111;
-      --sans: 'DM Sans', sans-serif;
-      --head: 'Syne', sans-serif;
+      --ground:   #0D0C0A;
+      --surface:  #141210;
+      --lift:     #1C1A17;
+      --rule:     rgba(230,210,180,0.07);
+      --rule-hi:  rgba(230,210,180,0.13);
+      --t1:       #EAE2D5;
+      --t2:       #7A7268;
+      --t3:       #474340;
+      --cash:     #C8A97A;
+      --visa:     #6E97B8;
+      --talabat:  #A47455;
+      --pos:      #5E9B70;
+      --neg:      #9B5B5B;
+      --sans:     'DM Sans', sans-serif;
+      --head:     'Syne', sans-serif;
+      --sb-w:     224px;
     }
 
     html, body {
       height: 100%;
-      background: var(--bg);
+      background: var(--ground);
       color: var(--t1);
       font-family: var(--sans);
+      font-weight: 300;
       -webkit-font-smoothing: antialiased;
     }
 
+    /* ── Shell ──────────────────────────────────────────── */
     .shell {
       display: grid;
-      grid-template-columns: 220px 1fr;
+      grid-template-columns: var(--sb-w) 1fr;
       min-height: 100vh;
     }
 
-    /* ── Sidebar ── */
+    /* ── Sidebar ──────────────────────────────────────── */
     .sidebar {
-      background: var(--sb);
-      border-right: 1px solid rgba(255,255,255,.045);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #0F0E0C;
+      border-right: 1px solid var(--rule);
       display: flex;
       flex-direction: column;
-      padding: 32px 24px;
-      gap: 32px;
+      padding: 28px 20px 24px;
+      overflow: hidden;
     }
+
     .sb-wordmark {
+      font-family: var(--head);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 20px;
+    }
+
+    .sb-brand-block {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .sb-brand-label {
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 4px;
+    }
+
+    .sb-brand-name {
       font-family: var(--head);
       font-size: 13px;
       font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
       color: var(--t1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .sb-brand {
-      font-size: 11px;
-      color: var(--t3);
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
+
     .sb-nav {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      flex: 1;
+      gap: 2px;
     }
+
     .sb-item {
-      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 12.5px;
       font-weight: 400;
       color: var(--t3);
-      padding: 8px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 150ms, color 150ms;
-      letter-spacing: .02em;
+      text-align: left;
+      transition: background 120ms, color 120ms;
     }
-    .sb-item:hover, .sb-item.active {
-      background: rgba(255,255,255,.05);
+
+    .sb-item:hover { background: var(--lift); color: var(--t2); }
+
+    .sb-item.active {
+      background: rgba(200,169,122,0.08);
       color: var(--t1);
     }
-    .sb-logout {
-      font-size: 11px;
-      color: var(--t3);
-      padding: 8px 10px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: color 150ms;
-    }
-    .sb-logout:hover { color: var(--t1); }
 
-    /* ── Main area ── */
+    .sb-item.active::before {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 14px;
+      background: var(--cash);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .sb-item:not(.active)::before {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .sb-bottom {
+      border-top: 1px solid var(--rule);
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    .sb-logout {
+      width: 100%;
+      padding: 7px 10px;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--t3);
+      text-align: left;
+      cursor: pointer;
+      transition: color 120ms;
+    }
+    .sb-logout:hover { color: var(--neg); }
+
+    /* ── Main ──────────────────────────────────────────── */
     .main {
+      overflow-y: auto;
+      padding: 36px 40px 56px;
+    }
+
+    /* ── Tab views ─────────────────────────────────────── */
+    .tab-view { display: none; flex-direction: column; gap: 16px; }
+    .tab-view.visible { display: flex; }
+
+    /* ── Header ────────────────────────────────────────── */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .dash-date {
+      font-family: var(--head);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t1);
+    }
+
+    .dash-season-text {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--t3);
+      letter-spacing: .03em;
+    }
+
+    .season-track {
+      height: 2px;
+      background: var(--rule);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .season-fill {
+      height: 100%;
+      background: var(--cash);
+      border-radius: 2px;
+      transition: width 600ms ease;
+      opacity: 0.5;
+    }
+
+    /* ── Metric grid ───────────────────────────────────── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    /* ── Card base ─────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+    }
+
+    .metric-card {
+      padding: 18px 20px 16px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      gap: 16px;
+      gap: 6px;
     }
 
-    .placeholder-icon {
-      font-size: 48px;
-      opacity: .6;
+    .card-label {
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
     }
 
-    .placeholder-head {
+    .card-value {
       font-family: var(--head);
       font-size: 22px;
       font-weight: 700;
       color: var(--t1);
-      text-align: center;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
     }
 
-    .placeholder-sub {
-      font-size: 13px;
-      font-weight: 300;
+    .card-value.pos { color: var(--pos); }
+    .card-value.neg { color: var(--neg); }
+
+    .card-sub {
+      font-size: 10.5px;
+      font-weight: 400;
       color: var(--t3);
-      text-align: center;
-      max-width: 380px;
-      line-height: 1.6;
     }
 
-    .placeholder-badge {
-      margin-top: 8px;
+    .recovery-track {
+      height: 2px;
+      background: var(--rule);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .recovery-fill {
+      height: 100%;
+      background: var(--cash);
+      border-radius: 2px;
+      opacity: 0.6;
+      transition: width 600ms ease;
+    }
+
+    /* ── Chart row ─────────────────────────────────────── */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 10px;
+    }
+
+    .chart-card { padding: 0; overflow: hidden; }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .chart-title {
       font-size: 10px;
+      font-weight: 500;
       letter-spacing: .1em;
       text-transform: uppercase;
       color: var(--t3);
-      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--t3);
+    }
+
+    .leg-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .bar-chart-wrap {
+      position: relative;
+      padding: 16px 20px 12px;
+      height: 216px;
+    }
+
+    #bar-chart {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-empty-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--t3);
+      font-weight: 400;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .donut-card {
+      padding: 16px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .donut-card .chart-title { margin-bottom: 14px; }
+
+    .donut-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    #donut-chart {
+      width: 130px;
+      height: 130px;
+      display: block;
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .donut-center-val {
+      font-family: var(--head);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .donut-center-label {
+      font-size: 8.5px;
+      color: var(--t3);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      border-top: 1px solid var(--rule);
+      padding-top: 14px;
+    }
+
+    .donut-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .donut-label { font-size: 11px; color: var(--t2); flex: 1; }
+    .donut-val { font-size: 10.5px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--t1); }
+    .donut-pct { font-size: 10px; color: var(--t3); min-width: 36px; text-align: right; }
+
+    /* ── Balance row ───────────────────────────────────── */
+    .balance-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .balance-card {
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .balance-card .card-value { font-size: 20px; }
+
+    .variance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: .05em;
+      padding: 2px 7px;
       border-radius: 20px;
-      padding: 5px 14px;
+      width: fit-content;
+    }
+    .variance-pill.pos { background: rgba(94,155,112,.12); color: var(--pos); }
+    .variance-pill.neg { background: rgba(155,91,91,.12); color: var(--neg); }
+    .variance-pill.neu { background: var(--rule); color: var(--t3); }
+
+    /* ── Status strip ──────────────────────────────────── */
+    .status-strip {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .status-strip-label {
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--t3);
+      padding: 14px 18px;
+      border-right: 1px solid var(--rule);
+      white-space: nowrap;
+      min-width: 100px;
+    }
+
+    .status-items { display: flex; flex: 1; }
+
+    .status-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 18px;
+      border-right: 1px solid var(--rule);
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--t3);
+    }
+
+    .status-item:last-child { border-right: none; }
+    .status-item.done { color: var(--t2); }
+
+    .st-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1.5px solid var(--t3);
+      flex-shrink: 0;
+    }
+
+    .status-item.done .st-dot { background: var(--pos); border-color: var(--pos); }
+
+    /* ── Skeleton ──────────────────────────────────────── */
+    @keyframes shimmer { 0%,100%{opacity:.4} 50%{opacity:.7} }
+    .skeleton { background: var(--lift); border-radius: 3px; animation: shimmer 1.4s ease-in-out infinite; }
+
+    /* ══════════════════════════════════════════════════════
+       FORM / SECTION STYLES (Daily, Set Values, etc.)
+    ══════════════════════════════════════════════════════ */
+
+    /* Section card */
+    .sec-card {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .sec-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+    }
+
+    .sec-body { padding: 20px; }
+    .sec-body.p0 { padding: 0; }
+
+    /* Date nav bar */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date-nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--t2);
+      font-size: 14px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 120ms, color 120ms;
+    }
+    .date-nav-btn:hover { background: var(--lift); color: var(--t1); }
+
+    .date-nav-label {
+      font-family: var(--head);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--t3);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: border-color 120ms, color 120ms;
+    }
+    .btn-ghost:hover { border-color: var(--rule-hi); color: var(--t2); }
+
+    /* Input styles */
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+    }
+
+    .field-input {
+      background: var(--lift);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--t1);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      padding: 8px 12px;
+      width: 100%;
+      outline: none;
+      transition: border-color 150ms;
+      font-variant-numeric: tabular-nums;
+    }
+    .field-input:focus { border-color: var(--rule-hi); }
+    .field-input::placeholder { color: var(--t3); }
+
+    select.field-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23474340'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+      cursor: pointer;
+    }
+
+    /* Grid layouts for forms */
+    .form-row {
+      display: grid;
+      gap: 12px;
+      align-items: end;
+    }
+    .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .form-row-2 { grid-template-columns: 1fr 1fr; }
+    .form-row-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+
+    /* Buttons */
+    .btn-primary {
+      background: rgba(200,169,122,0.12);
+      border: 1px solid rgba(200,169,122,0.2);
+      border-radius: 4px;
+      color: var(--cash);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 8px 18px;
+      cursor: pointer;
+      transition: background 150ms;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: rgba(200,169,122,0.18); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-danger {
+      background: transparent;
+      border: none;
+      color: var(--t3);
+      font-size: 15px;
+      padding: 2px 6px;
+      cursor: pointer;
+      border-radius: 3px;
+      line-height: 1;
+      transition: color 120ms;
+    }
+    .btn-danger:hover { color: var(--neg); }
+
+    .btn-sm {
+      font-size: 11px;
+      padding: 5px 12px;
+    }
+
+    /* Divider */
+    .form-divider { height: 1px; background: var(--rule); margin: 16px 0; }
+
+    /* Revenue computed preview */
+    .rev-preview {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      background: var(--lift);
+      border-radius: 4px;
+      border: 1px solid var(--rule);
+    }
+
+    .rev-preview-item { display: flex; flex-direction: column; gap: 2px; }
+    .rev-preview-item .rp-label { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); }
+    .rev-preview-item .rp-val { font-family: var(--head); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; }
+
+    .data-table th {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+      text-align: left;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .data-table td {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--t2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--lift); }
+    .data-table .td-em { color: var(--t1); }
+    .data-table .td-pos { color: var(--pos); }
+    .data-table .td-neg { color: var(--neg); }
+    .data-table .td-cash { color: var(--cash); }
+
+    /* Empty state */
+    .empty-row td {
+      text-align: center;
+      padding: 28px 16px;
+      color: var(--t3);
+      font-size: 12px;
+    }
+
+    /* Recurring due banner */
+    .due-banner {
+      border: 1px solid rgba(200,169,122,0.2);
+      border-radius: 5px;
+      background: rgba(200,169,122,0.05);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .due-banner-title {
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cash);
+    }
+
+    .due-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .due-item-name { font-size: 12px; color: var(--t1); flex: 1; }
+    .due-item-amt  { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--cash); }
+    .due-item-logged { font-size: 11px; color: var(--pos); }
+
+    /* Cash drawer computation display */
+    .drawer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .drawer-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 14px;
+      background: var(--lift);
+      border-radius: 4px;
+    }
+
+    .drawer-cell-label { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); }
+    .drawer-cell-val { font-family: var(--head); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--t1); }
+    .drawer-cell-val.pos { color: var(--pos); }
+    .drawer-cell-val.neg { color: var(--neg); }
+
+    /* ── Calendar styles ───────────────────────────────── */
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .cal-month-label {
+      font-family: var(--head);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t1);
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .cal-dow {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+      text-align: center;
+      padding: 8px 4px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 120ms, border-color 120ms;
+      position: relative;
+      padding: 4px;
+      min-height: 48px;
+    }
+
+    .cal-day:hover { background: var(--lift); border-color: var(--rule); }
+    .cal-day.other-month { opacity: 0.25; }
+    .cal-day.today { border-color: rgba(200,169,122,0.3); background: rgba(200,169,122,0.05); }
+    .cal-day.has-note::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--cash);
+      border-radius: 50%;
+    }
+
+    .cal-day-num {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--t2);
+      line-height: 1;
+    }
+    .cal-day.today .cal-day-num { color: var(--cash); font-weight: 500; }
+
+    /* Note editor popover */
+    .note-editor {
+      display: none;
+      padding: 16px 20px;
+      border-top: 1px solid var(--rule);
+    }
+    .note-editor.open { display: block; }
+    .note-editor-head {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 10px;
+    }
+    .note-textarea {
+      width: 100%;
+      min-height: 80px;
+      background: var(--lift);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--t1);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      padding: 10px 12px;
+      resize: vertical;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .note-textarea:focus { border-color: var(--rule-hi); }
+    .note-actions { display: flex; gap: 8px; }
+
+    /* ── Settings toggle ───────────────────────────────── */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { display: none; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--lift);
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 150ms;
+    }
+
+    .toggle input:checked + .toggle-track { background: rgba(200,169,122,0.25); border-color: rgba(200,169,122,0.4); }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      background: var(--t3);
+      border-radius: 50%;
+      transition: transform 150ms, background 150ms;
+    }
+
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(14px); background: var(--cash); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--lift);
+      border: 1px solid var(--rule-hi);
+      border-radius: 5px;
+      padding: 10px 18px;
+      font-size: 12.5px;
+      color: var(--t1);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 200ms, transform 200ms;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: none; }
+    #toast.ok  { border-color: rgba(94,155,112,.3); }
+    #toast.err { border-color: rgba(155,91,91,.3); color: var(--neg); }
+
+    /* Demo mode banner */
+    .demo-banner {
+      background: rgba(200,169,122,0.07);
+      border: 1px solid rgba(200,169,122,0.15);
+      border-radius: 5px;
+      padding: 12px 18px;
+      font-size: 12px;
+      color: var(--cash);
+      text-align: center;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-row { grid-template-columns: 1fr; }
+      .balance-row { grid-template-columns: 1fr 1fr; }
+      .form-row-5 { grid-template-columns: 1fr 1fr; }
+      .form-row-4 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 800px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px 48px; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .balance-row { grid-template-columns: 1fr; }
+      .status-items { flex-wrap: wrap; }
+      .form-row-3,
+      .form-row-4,
+      .form-row-5 { grid-template-columns: 1fr 1fr; }
+      .drawer-grid { grid-template-columns: 1fr 1fr; }
+      .cal-grid { gap: 2px; }
     }
   </style>
 </head>
 <body>
 
-<div class="shell">
-  <div class="sidebar">
-    <div>
-      <div class="sb-wordmark">Optimize</div>
-    </div>
-    <div class="sb-brand" id="sb-brand-name">Food Brand</div>
-    <nav class="sb-nav">
-      <div class="sb-item active">Home</div>
-      <div class="sb-item">Set Values</div>
-      <div class="sb-item">Daily Inputs</div>
-      <div class="sb-item">Calendar</div>
-      <div class="sb-item">Inventory</div>
-    </nav>
-    <div class="sb-logout" id="sb-logout">Sign out</div>
-  </div>
+<div id="toast"></div>
 
-  <main class="main">
-    <div class="placeholder-icon">🍔</div>
-    <div class="placeholder-head">Food Brand Dashboard</div>
-    <div class="placeholder-sub">
-      Your restaurant operations workspace is ready. The full dashboard is being designed — check back soon.
+<div class="shell">
+
+  <!-- ── Sidebar ──────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sb-wordmark">Optimize</div>
+
+    <div class="sb-brand-block">
+      <div class="sb-brand-label">Workspace</div>
+      <div class="sb-brand-name" id="sb-brand-name">—</div>
     </div>
-    <div class="placeholder-badge">Coming Soon</div>
+
+    <nav class="sb-nav">
+      <button class="sb-item active" data-tab="home">Home</button>
+      <button class="sb-item" data-tab="set-values">Set Values</button>
+      <button class="sb-item" data-tab="daily">Daily Inputs</button>
+      <button class="sb-item" data-tab="calendar">Calendar</button>
+      <button class="sb-item" data-tab="inventory">Inventory</button>
+    </nav>
+
+    <div class="sb-bottom">
+      <button class="sb-logout" id="sb-logout">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ═══════════════════════════════════════════════════
+         HOME TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view visible" id="tab-home">
+
+      <div>
+        <div class="dash-header">
+          <div class="dash-date" id="dash-date">—</div>
+          <div class="dash-season-text" id="dash-season">—</div>
+        </div>
+        <div class="season-track">
+          <div class="season-fill" id="season-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="card metric-card">
+          <div class="card-label">Season Revenue</div>
+          <div class="card-value" id="val-revenue">—</div>
+          <div class="card-sub" id="sub-revenue">loading…</div>
+        </div>
+        <div class="card metric-card">
+          <div class="card-label">Net Cash Position</div>
+          <div class="card-value" id="val-net">—</div>
+          <div class="card-sub">revenue − all expenses</div>
+        </div>
+        <div class="card metric-card">
+          <div class="card-label">Avg Daily Revenue</div>
+          <div class="card-value" id="val-avg">—</div>
+          <div class="card-sub" id="sub-avg">—</div>
+        </div>
+        <div class="card metric-card">
+          <div class="card-label">Setup Recovery</div>
+          <div class="card-value" id="val-recovery">—</div>
+          <div class="recovery-track">
+            <div class="recovery-fill" id="recovery-fill" style="width:0%"></div>
+          </div>
+          <div class="card-sub">of total setup cost</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="card chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Daily Revenue</div>
+            <div class="chart-legend">
+              <span><span class="leg-dot" style="background:var(--cash)"></span>Cash</span>
+              <span><span class="leg-dot" style="background:var(--visa)"></span>Visa</span>
+              <span><span class="leg-dot" style="background:var(--talabat)"></span>Talabat</span>
+            </div>
+          </div>
+          <div class="bar-chart-wrap">
+            <canvas id="bar-chart"></canvas>
+            <div class="chart-empty-msg" id="bar-empty" style="display:none">No revenue data yet — start logging daily inputs</div>
+          </div>
+        </div>
+
+        <div class="card donut-card">
+          <div class="chart-title">Revenue Mix</div>
+          <div class="donut-wrap">
+            <canvas id="donut-chart" width="130" height="130"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-val" id="donut-center-val">—</div>
+              <div class="donut-center-label">Total</div>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div class="donut-row">
+              <span class="leg-dot" style="background:var(--cash)"></span>
+              <span class="donut-label">Cash</span>
+              <span class="donut-val" id="dv-cash">—</span>
+              <span class="donut-pct" id="dp-cash">—</span>
+            </div>
+            <div class="donut-row">
+              <span class="leg-dot" style="background:var(--visa)"></span>
+              <span class="donut-label">Visa</span>
+              <span class="donut-val" id="dv-visa">—</span>
+              <span class="donut-pct" id="dp-visa">—</span>
+            </div>
+            <div class="donut-row">
+              <span class="leg-dot" style="background:var(--talabat)"></span>
+              <span class="donut-label">Talabat</span>
+              <span class="donut-val" id="dv-talabat">—</span>
+              <span class="donut-pct" id="dp-talabat">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="balance-row">
+        <div class="card balance-card">
+          <div class="card-label">Cash in Drawer</div>
+          <div class="card-value" id="val-drawer">—</div>
+          <div class="card-sub" id="sub-drawer">loading…</div>
+          <div id="drawer-pill"></div>
+        </div>
+        <div class="card balance-card">
+          <div class="card-label">Total Banked</div>
+          <div class="card-value" id="val-banked">—</div>
+          <div class="card-sub">transferred to account</div>
+        </div>
+        <div class="card balance-card">
+          <div class="card-label">Undeposited</div>
+          <div class="card-value" id="val-outstanding">—</div>
+          <div class="card-sub">earned, not yet transferred</div>
+        </div>
+      </div>
+
+      <div class="status-strip">
+        <div class="status-strip-label">Today's Log</div>
+        <div class="status-items">
+          <div class="status-item" id="st-revenue"><div class="st-dot"></div>Revenue</div>
+          <div class="status-item" id="st-expenses"><div class="st-dot"></div>Expenses</div>
+          <div class="status-item" id="st-cash"><div class="st-dot"></div>Cash Count</div>
+          <div class="status-item" id="st-inventory"><div class="st-dot"></div>Inventory</div>
+        </div>
+      </div>
+
+    </div><!-- /tab-home -->
+
+    <!-- ═══════════════════════════════════════════════════
+         SET VALUES TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-set-values">
+
+      <!-- Talabat Rate -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Talabat Commission Rate</div>
+        </div>
+        <div class="sec-body">
+          <div class="form-row form-row-2" style="max-width:400px; align-items:flex-end;">
+            <div class="field-group">
+              <label class="field-label">Rate (%)</label>
+              <input type="number" id="sv-talabat-rate" class="field-input" min="0" max="100" step="0.1" placeholder="13"/>
+            </div>
+            <button class="btn-primary" id="sv-talabat-save">Save</button>
+          </div>
+          <p style="font-size:11px;color:var(--t3);margin-top:10px;">Used to compute Talabat net revenue. Default is 13%.</p>
+        </div>
+      </div>
+
+      <!-- Setup Expenses -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Setup Expenses</div>
+          <button class="btn-ghost btn-sm" id="sv-add-setup-btn">+ Add</button>
+        </div>
+
+        <!-- Add form (hidden by default) -->
+        <div id="sv-setup-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--rule);">
+          <div class="form-row form-row-4" style="margin-bottom:12px;">
+            <div class="field-group" style="grid-column:1/3;">
+              <label class="field-label">Item</label>
+              <input type="text" id="sv-setup-item" class="field-input" placeholder="e.g. Kitchen equipment"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Category</label>
+              <select id="sv-setup-cat" class="field-input">
+                <option>Equipment</option>
+                <option>Renovation</option>
+                <option>Furniture</option>
+                <option>Branding</option>
+                <option>Licenses</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Amount (EGP)</label>
+              <input type="number" id="sv-setup-amount" class="field-input" placeholder="0"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary btn-sm" id="sv-setup-save">Add Expense</button>
+            <button class="btn-ghost btn-sm" id="sv-setup-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="sv-setup-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th style="text-align:right;">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="sv-setup-tbody">
+                <tr class="empty-row"><td colspan="4">No setup expenses yet</td></tr>
+              </tbody>
+              <tfoot id="sv-setup-tfoot" style="display:none;">
+                <tr>
+                  <td colspan="2" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:10px 16px;">Total</td>
+                  <td style="text-align:right;font-family:var(--head);font-weight:700;color:var(--t1);padding:10px 16px;" id="sv-setup-total">—</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recurring Expenses -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Recurring Expenses</div>
+          <button class="btn-ghost btn-sm" id="sv-add-rec-btn">+ Add</button>
+        </div>
+
+        <div id="sv-rec-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--rule);">
+          <div class="form-row form-row-4" style="margin-bottom:12px;">
+            <div class="field-group" style="grid-column:1/3;">
+              <label class="field-label">Item</label>
+              <input type="text" id="sv-rec-item" class="field-input" placeholder="e.g. Staff Wages"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Frequency</label>
+              <select id="sv-rec-freq" class="field-input" onchange="handleRecFreqChange()">
+                <option>Monthly</option>
+                <option>Weekly</option>
+                <option>Percent of Sales</option>
+                <option>One-time</option>
+              </select>
+            </div>
+            <div class="field-group" id="sv-rec-amount-group">
+              <label class="field-label">Amount (EGP)</label>
+              <input type="number" id="sv-rec-amount" class="field-input" placeholder="0"/>
+            </div>
+          </div>
+          <div class="form-row form-row-4" id="sv-rec-extra-row" style="margin-bottom:12px; display:none;">
+            <div class="field-group" id="sv-rec-pct-group" style="display:none;">
+              <label class="field-label">Rate (%)</label>
+              <input type="number" id="sv-rec-pct" class="field-input" placeholder="0" min="0" max="100" step="0.1"/>
+            </div>
+            <div class="field-group" id="sv-rec-monthly-group" style="display:none;">
+              <label class="field-label">Due Day of Month</label>
+              <input type="number" id="sv-rec-monthly-day" class="field-input" placeholder="1" min="1" max="31"/>
+            </div>
+            <div class="field-group" id="sv-rec-weekly-group" style="display:none;">
+              <label class="field-label">Due Day of Week</label>
+              <select id="sv-rec-weekly-day" class="field-input">
+                <option value="0">Sunday</option>
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5">Friday</option>
+                <option value="6">Saturday</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary btn-sm" id="sv-rec-save">Add Expense</button>
+            <button class="btn-ghost btn-sm" id="sv-rec-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Frequency</th>
+                  <th>Amount / Rate</th>
+                  <th>Active</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="sv-rec-tbody">
+                <tr class="empty-row"><td colspan="5">No recurring expenses yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-set-values -->
+
+    <!-- ═══════════════════════════════════════════════════
+         DAILY INPUTS TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-daily">
+
+      <!-- Date navigator -->
+      <div class="date-nav" style="margin-bottom:4px;">
+        <button class="date-nav-btn" id="daily-prev" title="Previous day">&#8592;</button>
+        <div class="date-nav-label" id="daily-date-label">—</div>
+        <button class="date-nav-btn" id="daily-next" title="Next day">&#8594;</button>
+        <button class="btn-ghost btn-sm" id="daily-today-btn">Today</button>
+      </div>
+
+      <!-- Recurring due -->
+      <div id="daily-due-section" style="display:none;"></div>
+
+      <!-- Revenue -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Revenue</div>
+          <span id="daily-rev-status" style="font-size:11px;color:var(--t3);"></span>
+        </div>
+        <div class="sec-body">
+          <div class="form-row form-row-3" style="margin-bottom:14px;">
+            <div class="field-group">
+              <label class="field-label">Cash (EGP)</label>
+              <input type="number" id="daily-rev-cash" class="field-input" placeholder="0" min="0"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Visa (EGP)</label>
+              <input type="number" id="daily-rev-visa" class="field-input" placeholder="0" min="0"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Talabat Gross (EGP)</label>
+              <input type="number" id="daily-rev-talabat" class="field-input" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="rev-preview" id="daily-rev-preview" style="display:none; margin-bottom:14px;">
+            <div class="rev-preview-item">
+              <span class="rp-label">Talabat Net</span>
+              <span class="rp-val" id="rp-tal-net" style="color:var(--talabat);">—</span>
+            </div>
+            <div class="rev-preview-item">
+              <span class="rp-label">Commission</span>
+              <span class="rp-val" id="rp-tal-comm" style="color:var(--t3);">—</span>
+            </div>
+            <div class="rev-preview-item">
+              <span class="rp-label">Total</span>
+              <span class="rp-val" id="rp-total" style="color:var(--cash);">—</span>
+            </div>
+          </div>
+          <button class="btn-primary" id="daily-rev-save">Save Revenue</button>
+        </div>
+      </div>
+
+      <!-- Cash Drawer -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Cash Drawer</div>
+          <span id="daily-drawer-status" style="font-size:11px;color:var(--t3);"></span>
+        </div>
+        <div class="sec-body">
+          <div class="drawer-grid" id="daily-drawer-computed"></div>
+          <div class="form-row form-row-2" style="max-width:400px; margin-bottom:14px;">
+            <div class="field-group">
+              <label class="field-label">Opening Cash (EGP)</label>
+              <input type="number" id="daily-drawer-opening" class="field-input" placeholder="0" min="0"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Actual Counted Cash (EGP)</label>
+              <input type="number" id="daily-drawer-actual" class="field-input" placeholder="leave blank if not counted"/>
+            </div>
+          </div>
+          <button class="btn-primary" id="daily-drawer-save">Save Cash Count</button>
+        </div>
+      </div>
+
+      <!-- Daily Expenses -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Expenses</div>
+          <button class="btn-ghost btn-sm" id="daily-exp-toggle">+ Add</button>
+        </div>
+
+        <div id="daily-exp-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--rule);">
+          <div class="form-row form-row-4" style="margin-bottom:12px;">
+            <div class="field-group" style="grid-column:1/3;">
+              <label class="field-label">Item</label>
+              <input type="text" id="daily-exp-item" class="field-input" placeholder="e.g. Produce delivery"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Category</label>
+              <select id="daily-exp-cat" class="field-input">
+                <option>Food &amp; Beverage</option>
+                <option>Packaging</option>
+                <option>Maintenance</option>
+                <option>Utilities</option>
+                <option>Staff</option>
+                <option>Marketing</option>
+                <option>Transport</option>
+                <option>Recurring</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Amount (EGP)</label>
+              <input type="number" id="daily-exp-amount" class="field-input" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="form-row form-row-2" style="max-width:400px; margin-bottom:12px;">
+            <div class="field-group">
+              <label class="field-label">Payment Method</label>
+              <select id="daily-exp-method" class="field-input">
+                <option>Cash</option>
+                <option>Visa</option>
+                <option>Transfer</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Paid By</label>
+              <input type="text" id="daily-exp-paidby" class="field-input" placeholder="optional"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary btn-sm" id="daily-exp-save">Add Expense</button>
+            <button class="btn-ghost btn-sm" id="daily-exp-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>Method</th>
+                  <th style="text-align:right;">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="daily-exp-tbody">
+                <tr class="empty-row"><td colspan="5">No expenses logged for this date</td></tr>
+              </tbody>
+              <tfoot id="daily-exp-tfoot" style="display:none;">
+                <tr>
+                  <td colspan="3" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:10px 16px;">Total</td>
+                  <td style="text-align:right;font-family:var(--head);font-weight:700;color:var(--t1);padding:10px 16px;" id="daily-exp-total">—</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Transfers -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Bank Transfers</div>
+          <button class="btn-ghost btn-sm" id="daily-xfer-toggle">+ Add</button>
+        </div>
+
+        <div id="daily-xfer-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--rule);">
+          <div class="form-row form-row-4" style="margin-bottom:12px;">
+            <div class="field-group">
+              <label class="field-label">Source</label>
+              <select id="daily-xfer-source" class="field-input">
+                <option>Cash Deposit</option>
+                <option>Visa Settlement</option>
+                <option>Talabat Payout</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Amount Received (EGP)</label>
+              <input type="number" id="daily-xfer-amount" class="field-input" placeholder="0" min="0"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Period From</label>
+              <input type="date" id="daily-xfer-from" class="field-input"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Period To</label>
+              <input type="date" id="daily-xfer-to" class="field-input"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary btn-sm" id="daily-xfer-save">Log Transfer</button>
+            <button class="btn-ghost btn-sm" id="daily-xfer-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Period</th>
+                  <th style="text-align:right;">Received</th>
+                  <th style="text-align:right;">Expected</th>
+                  <th style="text-align:right;">Diff</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="daily-xfer-tbody">
+                <tr class="empty-row"><td colspan="6">No transfers logged for this date</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-daily -->
+
+    <!-- ═══════════════════════════════════════════════════
+         CALENDAR TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-calendar">
+
+      <div class="sec-card">
+        <div class="sec-head" style="padding:16px 20px;">
+          <div class="cal-nav" style="width:100%;">
+            <button class="date-nav-btn" id="cal-prev">&#8592;</button>
+            <div class="cal-month-label" id="cal-month-label">—</div>
+            <button class="date-nav-btn" id="cal-next">&#8594;</button>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="note-editor" id="note-editor">
+          <div class="note-editor-head" id="note-editor-head">Note for —</div>
+          <textarea class="note-textarea" id="note-textarea" placeholder="Type a note…"></textarea>
+          <div class="note-actions">
+            <button class="btn-primary btn-sm" id="note-save">Save Note</button>
+            <button class="btn-ghost btn-sm" id="note-delete">Delete</button>
+            <button class="btn-ghost btn-sm" id="note-close">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes list -->
+      <div class="sec-card">
+        <div class="sec-head"><div class="sec-title">All Notes</div></div>
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr><th>Date</th><th>Note</th><th></th></tr>
+              </thead>
+              <tbody id="cal-notes-tbody">
+                <tr class="empty-row"><td colspan="3">No notes yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-calendar -->
+
+    <!-- ═══════════════════════════════════════════════════
+         INVENTORY TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-inventory">
+
+      <!-- Log check form -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Log Inventory Check</div>
+        </div>
+        <div class="sec-body">
+          <div class="form-row form-row-5" style="margin-bottom:14px;">
+            <div class="field-group">
+              <label class="field-label">Date</label>
+              <input type="date" id="inv-date" class="field-input"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Item</label>
+              <input type="text" id="inv-item" class="field-input" placeholder="e.g. Flour"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Unit</label>
+              <input type="text" id="inv-unit" class="field-input" placeholder="kg, pcs…"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">System Count</label>
+              <input type="number" id="inv-system" class="field-input" placeholder="0" step="any"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Physical Count</label>
+              <input type="number" id="inv-physical" class="field-input" placeholder="0" step="any"/>
+            </div>
+          </div>
+          <div class="field-group" style="max-width:400px; margin-bottom:14px;">
+            <label class="field-label">Notes</label>
+            <input type="text" id="inv-notes" class="field-input" placeholder="optional"/>
+          </div>
+          <button class="btn-primary" id="inv-save">Log Check</button>
+        </div>
+      </div>
+
+      <!-- History table -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Recent Checks</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="inv-filter" class="field-input" style="width:160px;font-size:11px;" placeholder="Filter by item…"/>
+          </div>
+        </div>
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Unit</th>
+                  <th style="text-align:right;">System</th>
+                  <th style="text-align:right;">Physical</th>
+                  <th style="text-align:right;">Variance</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="inv-tbody">
+                <tr class="empty-row"><td colspan="8">No checks logged yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-inventory -->
+
   </main>
 </div>
 
@@ -165,39 +1613,705 @@
 (function () {
   'use strict';
 
-  var tok = localStorage.getItem('__opt_token');
+  /* ── State ─────────────────────────────────────────────── */
+  var BRAND_ID  = null;
+  var TOKEN     = localStorage.getItem('__opt_token') || '';
+  var IS_DEMO   = false;
+  var TALABAT_RATE = 0.13;
 
-  // Verify session; redirect non-food-brand workspaces out
-  fetch('/api/me', {
-    headers: tok ? { 'Authorization': 'Bearer ' + tok } : {},
-    credentials: 'include',
-  })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (d) {
-      if (!d || !d.ok || d.dev_mode) return;
-      if (!d.brand_id) { window.location.replace('/signin'); return; }
-      if (d.business_type !== 'food_brand') { window.location.replace('/dashboard'); return; }
+  /* ── Helpers ───────────────────────────────────────────── */
+  function $(id) { return document.getElementById(id); }
+  function set(id, txt) { var el = $(id); if (el) el.textContent = txt; }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
 
-      // Populate sidebar brand name
-      var el = document.getElementById('sb-brand-name');
-      if (el && d.brand_name) el.textContent = d.brand_name;
-    })
-    .catch(function () {});
+  function fmtEGP(n) {
+    if (n == null || isNaN(n)) return '—';
+    var abs = Math.abs(n);
+    var s = abs >= 1000
+      ? abs.toLocaleString('en-US', { maximumFractionDigits: 0 })
+      : abs.toFixed(0);
+    return (n < 0 ? '−' : '') + 'EGP ' + s;
+  }
 
-  // Logout
-  document.getElementById('sb-logout').addEventListener('click', function () {
-    var t = localStorage.getItem('__opt_token');
-    fetch('/api/auth/logout', {
-      method: 'POST',
-      headers: t ? { 'Authorization': 'Bearer ' + t } : {},
-      credentials: 'include',
-    }).finally(function () {
-      localStorage.removeItem('__opt_token');
-      localStorage.removeItem('__opt_brand_id');
-      localStorage.removeItem('__opt_brand_name');
-      window.location.replace('/signin');
+  function fmtEGPShort(n) {
+    if (n == null || isNaN(n)) return '—';
+    var abs = Math.abs(n), sign = n < 0 ? '−' : '';
+    if (abs >= 1000000) return sign + 'EGP ' + (abs/1000000).toFixed(1) + 'M';
+    if (abs >= 1000)    return sign + 'EGP ' + (abs/1000).toFixed(1) + 'k';
+    return sign + 'EGP ' + abs.toFixed(0);
+  }
+
+  function fmtPct(n) {
+    if (n == null || isNaN(n)) return '—';
+    return n.toFixed(1) + '%';
+  }
+
+  function fmtDate(ds) {
+    var d = new Date(ds + 'T12:00:00Z');
+    return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', timeZone:'UTC' });
+  }
+
+  function fmtDateShort(ds) {
+    var d = new Date(ds + 'T12:00:00Z');
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' });
+  }
+
+  function addDays(ds, n) {
+    var d = new Date(ds + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0,10);
+  }
+
+  /* ── Toast ─────────────────────────────────────────────── */
+  var toastTimer = null;
+  function toast(msg, type) {
+    var el = $('toast');
+    el.textContent = msg;
+    el.className = 'show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.className = ''; }, 3000);
+  }
+
+  /* ── API ───────────────────────────────────────────────── */
+  function api(path, opts) {
+    var headers = Object.assign({ 'Content-Type': 'application/json' },
+      TOKEN ? { 'Authorization': 'Bearer ' + TOKEN } : {});
+    return fetch(path, Object.assign({ credentials:'include', headers: headers }, opts))
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return null; });
+  }
+
+  function base() { return '/api/' + BRAND_ID + '/food-brand'; }
+
+  /* ═══════════════════════════════════════════════════════
+     HOME TAB
+  ═══════════════════════════════════════════════════════ */
+  var COLORS = { cash:'#C8A97A', visa:'#6E97B8', talabat:'#A47455', grid:'rgba(230,210,180,0.06)', label:'#474340', empty:'#2A2825' };
+  var _lastBarRows = null, _resizeTimer = null;
+
+  window.addEventListener('resize', function(){
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(function(){ if (_lastBarRows) drawBars(_lastBarRows); }, 120);
+  });
+
+  function renderSeason(s) {
+    set('dash-date', fmtDate(s.today));
+    set('dash-season', 'Season — day ' + s.season.elapsed + ' of ' + s.season.totalDays);
+    var fill = $('season-fill');
+    if (fill) fill.style.width = Math.min(s.season.percent, 100) + '%';
+  }
+
+  function renderMetrics(s) {
+    set('val-revenue', fmtEGP(s.revenue.totalRevenue));
+    set('sub-revenue', s.revenue.daysWithRevenue + ' days recorded');
+    var netEl = $('val-net');
+    var net = s.netPosition.netCashGenerated;
+    netEl.textContent = fmtEGP(net);
+    netEl.className = 'card-value' + (net > 0 ? ' pos' : net < 0 ? ' neg' : '');
+    set('val-avg', fmtEGP(s.revenue.avgDailyRevenue));
+    set('sub-avg', 'over ' + s.revenue.daysWithRevenue + ' operating days');
+    var pct = s.netPosition.setupRecoveredPercent;
+    set('val-recovery', fmtPct(pct));
+    var rf = $('recovery-fill');
+    if (rf) rf.style.width = Math.min(pct, 100) + '%';
+  }
+
+  function renderBalances(s, drawer) {
+    var banked = (s.bankTransferHealth || []).reduce(function(a,c){ return a+(c.transferred||0); }, 0);
+    set('val-banked', fmtEGP(banked));
+    var outstanding = s.revenue.totalRevenue - banked;
+    var outEl = $('val-outstanding');
+    if (outEl) {
+      outEl.textContent = fmtEGP(outstanding);
+      outEl.className = 'card-value' + (outstanding > 10000 ? ' neg' : '');
+    }
+    if (drawer) {
+      var actual = drawer.actual_counted_cash, expected = drawer.expected_closing_cash;
+      var drawerEl = $('val-drawer');
+      if (actual != null) {
+        drawerEl.textContent = fmtEGP(actual); drawerEl.className = 'card-value';
+        set('sub-drawer', 'counted this close');
+        if (drawer.variance != null) {
+          var pill = $('drawer-pill');
+          var v = drawer.variance, sign = v>0?'+':'';
+          pill.innerHTML = '<span class="variance-pill '+(v===0?'neu':v>0?'pos':'neg')+'">' + sign + fmtEGP(v) + ' variance</span>';
+        }
+      } else if (expected != null) {
+        drawerEl.textContent = fmtEGP(expected); drawerEl.className = 'card-value';
+        set('sub-drawer', 'estimated (not yet counted)');
+      } else {
+        set('val-drawer', '—'); set('sub-drawer', 'set opening cash to track');
+      }
+    }
+  }
+
+  function renderStatus(ts) {
+    var map = { 'st-revenue': ts.revenue_entered, 'st-expenses': ts.expenses_entered, 'st-cash': ts.cash_counted, 'st-inventory': ts.inventory_checked };
+    Object.keys(map).forEach(function(id){ var el=$(id); if(el) el.classList.toggle('done', !!map[id]); });
+  }
+
+  function renderDonut(rev) {
+    var canvas = $('donut-chart'); if (!canvas) return;
+    var dpr = window.devicePixelRatio||1, S=130;
+    canvas.width = S*dpr; canvas.height = S*dpr;
+    var ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+    var cx=S/2, cy=S/2, outer=S/2-6, inner=outer*0.60;
+    var cash=rev.cashRevenue||0, visa=rev.visaRevenue||0, tal=rev.talabatNetRevenue||0, total=cash+visa+tal;
+    set('donut-center-val', fmtEGPShort(total));
+    set('dv-cash', fmtEGPShort(cash));   set('dp-cash', total?fmtPct(cash/total*100):'—');
+    set('dv-visa', fmtEGPShort(visa));   set('dp-visa', total?fmtPct(visa/total*100):'—');
+    set('dv-talabat', fmtEGPShort(tal)); set('dp-talabat', total?fmtPct(tal/total*100):'—');
+    if (!total) {
+      ctx.beginPath(); ctx.arc(cx,cy,outer,0,Math.PI*2); ctx.arc(cx,cy,inner,0,Math.PI*2,true);
+      ctx.fillStyle=COLORS.empty; ctx.fill('evenodd'); return;
+    }
+    var segs=[{val:cash,color:COLORS.cash},{val:visa,color:COLORS.visa},{val:tal,color:COLORS.talabat}];
+    var angle=-Math.PI/2, gap=0.03;
+    segs.forEach(function(seg){
+      if(!seg.val) return;
+      var sweep=(seg.val/total)*Math.PI*2;
+      ctx.beginPath(); ctx.arc(cx,cy,outer,angle+gap/2,angle+sweep-gap/2); ctx.arc(cx,cy,inner,angle+sweep-gap/2,angle+gap/2,true);
+      ctx.closePath(); ctx.fillStyle=seg.color; ctx.fill(); angle+=sweep;
+    });
+  }
+
+  function drawBars(rows) {
+    var canvas=$('bar-chart'), empty=$('bar-empty'); if (!canvas) return;
+    if (!rows||!rows.length){ canvas.style.display='none'; if(empty) empty.style.display='flex'; return; }
+    canvas.style.display='block'; if(empty) empty.style.display='none';
+    var data=rows.slice(-30), dpr=window.devicePixelRatio||1;
+    var W=canvas.offsetWidth, H=canvas.offsetHeight;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+    var disp=data.map(function(r){ return {date:r.date, cash:r.revenue_cash||0, visa:r.revenue_visa||0, talabat:(r.revenue_talabat_gross||0)*0.87}; });
+    var pad={top:12,right:4,bottom:28,left:44}, chartW=W-pad.left-pad.right, chartH=H-pad.top-pad.bottom;
+    var maxVal=Math.max.apply(null, disp.map(function(r){return r.cash+r.visa+r.talabat;}));
+    if (!maxVal) maxVal=1000;
+    var yMax=Math.ceil(maxVal/1000)*1000; if(yMax<500) yMax=500;
+    var yTicks=4;
+    ctx.font='9px DM Sans'; ctx.textAlign='right';
+    for (var i=0;i<=yTicks;i++){
+      var yVal=(i/yTicks)*yMax, yPx=pad.top+chartH-(i/yTicks)*chartH;
+      ctx.strokeStyle=COLORS.grid; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pad.left,yPx); ctx.lineTo(W-pad.right,yPx); ctx.stroke();
+      ctx.fillStyle=COLORS.label;
+      ctx.fillText(yVal>=1000?(yVal/1000).toFixed(0)+'k':yVal.toFixed(0), pad.left-6, yPx+3);
+    }
+    var n=disp.length, slotW=chartW/n, barW=Math.max(Math.min(slotW*0.62,18),4), barGap=(slotW-barW)/2;
+    disp.forEach(function(r,i){
+      var x=pad.left+i*slotW+barGap, cashH=(r.cash/yMax)*chartH, visaH=(r.visa/yMax)*chartH, talH=(r.talabat/yMax)*chartH;
+      var yBase=pad.top+chartH;
+      if(talH>0.5){ctx.fillStyle=COLORS.talabat; ctx.fillRect(x,yBase-cashH-visaH-talH,barW,talH);}
+      if(visaH>0.5){ctx.fillStyle=COLORS.visa; ctx.fillRect(x,yBase-cashH-visaH,barW,visaH);}
+      if(cashH>0.5){ctx.fillStyle=COLORS.cash; ctx.fillRect(x,yBase-cashH,barW,cashH);}
+      if (n<=14||i===0||i===n-1||i%Math.ceil(n/10)===0){
+        ctx.fillStyle=COLORS.label; ctx.font='8.5px DM Sans'; ctx.textAlign='center';
+        ctx.fillText(r.date.slice(5), x+barW/2, H-pad.bottom+11);
+      }
+    });
+  }
+
+  function loadHomeData() {
+    if (IS_DEMO) { loadDemo(); return; }
+    var today = todayStr();
+    Promise.all([
+      api(base()+'/summary'),
+      api(base()+'/revenue'),
+      api(base()+'/cash-drawer/'+today),
+    ]).then(function(res){
+      var summary=res[0], revRows=res[1], drawer=res[2];
+      if (summary) { renderSeason(summary); renderMetrics(summary); renderBalances(summary,drawer); renderStatus(summary.todayStatus); renderDonut(summary.revenue); }
+      _lastBarRows = revRows && revRows.length ? revRows : null;
+      requestAnimationFrame(function(){ drawBars(_lastBarRows||[]); });
+    });
+  }
+
+  /* ── Demo ──────────────────────────────────────────────── */
+  function buildDemoData() {
+    var today=todayStr(), rows=[];
+    for (var i=29;i>=0;i--){
+      var d=new Date(today+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()-i);
+      var ds=d.toISOString().slice(0,10), base2=4000+Math.sin(i*0.6)*1200+Math.random()*800;
+      rows.push({date:ds, revenue_cash:Math.round(base2*0.48), revenue_visa:Math.round(base2*0.34), revenue_talabat_gross:Math.round(base2*0.21)});
+    }
+    var tC=rows.reduce(function(a,r){return a+r.revenue_cash;},0);
+    var tV=rows.reduce(function(a,r){return a+r.revenue_visa;},0);
+    var tTG=rows.reduce(function(a,r){return a+r.revenue_talabat_gross;},0);
+    var tTN=Math.round(tTG*0.87), tR=tC+tV+tTN;
+    return {
+      summary:{ today:today, season:{totalDays:122,elapsed:40,remaining:82,percent:32.8},
+        revenue:{totalRevenue:tR, cashRevenue:tC, visaRevenue:tV, talabatGrossRevenue:tTG, talabatCommissionPaid:Math.round(tTG*0.13), talabatNetRevenue:tTN, cashPercent:(tC/tR*100), talabatPercent:(tTN/tR*100), avgDailyRevenue:Math.round(tR/30), daysWithRevenue:30},
+        expenses:{totalSetupCost:45000, totalDailyExpenses:Math.round(tR*0.62), recurringPaid:18000, totalAllExpenses:45000+Math.round(tR*0.62)},
+        netPosition:{netCashGenerated:Math.round(tR*0.38)-45000, setupRecoveredPercent:12},
+        bankTransferHealth:[{channel:'Cash',earned:tC,transferred:Math.round(tC*0.9),gap:Math.round(tC*0.1),flagged:true},{channel:'Visa',earned:tV,transferred:Math.round(tV*0.85),gap:Math.round(tV*0.15),flagged:true},{channel:'Talabat',earned:tTN,transferred:Math.round(tTN*0.8),gap:Math.round(tTN*0.2),flagged:true}],
+        cashDrawerHealth:{cumulativeVariance:-340,nonzeroVarianceDays:4},
+        todayStatus:{revenue_entered:true,expenses_entered:true,cash_counted:false,inventory_checked:false}},
+      revenueRows:rows,
+      cashDrawer:{date:today,opening_cash:3200,expected_closing_cash:5840,actual_counted_cash:null,variance:null}
+    };
+  }
+
+  function loadDemo() {
+    var demo=buildDemoData();
+    set('sb-brand-name','Demo Brand');
+    renderSeason(demo.summary); renderMetrics(demo.summary); renderBalances(demo.summary,demo.cashDrawer);
+    renderStatus(demo.summary.todayStatus); renderDonut(demo.summary.revenue);
+    _lastBarRows=demo.revenueRows;
+    requestAnimationFrame(function(){ drawBars(demo.revenueRows); });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SET VALUES TAB
+  ═══════════════════════════════════════════════════════ */
+  function loadSetValues() {
+    if (IS_DEMO) return;
+    // Load Talabat rate
+    api(base()+'/settings').then(function(rows){
+      if (!rows) return;
+      var rateRow = (rows||[]).find(function(r){ return r.key==='talabat_commission_rate'; });
+      if (rateRow) {
+        TALABAT_RATE = parseFloat(rateRow.value);
+        $('sv-talabat-rate').value = (TALABAT_RATE*100).toFixed(1);
+      }
+    });
+    loadSetupExpenses();
+    loadRecurringExpenses();
+  }
+
+  $('sv-talabat-save').addEventListener('click', function(){
+    var val = parseFloat($('sv-talabat-rate').value);
+    if (isNaN(val) || val<0 || val>100) { toast('Enter a valid rate 0–100', 'err'); return; }
+    TALABAT_RATE = val/100;
+    api(base()+'/settings', { method:'PUT', body: JSON.stringify({key:'talabat_commission_rate', value: TALABAT_RATE}) })
+      .then(function(){ toast('Rate saved', 'ok'); });
+  });
+
+  // Setup expenses
+  $('sv-add-setup-btn').addEventListener('click', function(){
+    $('sv-setup-form').style.display = $('sv-setup-form').style.display==='none' ? 'block' : 'none';
+  });
+  $('sv-setup-cancel').addEventListener('click', function(){ $('sv-setup-form').style.display='none'; });
+  $('sv-setup-save').addEventListener('click', function(){
+    var item=$('sv-setup-item').value.trim(), cat=$('sv-setup-cat').value, amt=parseFloat($('sv-setup-amount').value)||0;
+    if (!item) { toast('Item name required','err'); return; }
+    api(base()+'/setup-expenses', { method:'POST', body:JSON.stringify({item:item,category:cat,amount:amt}) })
+      .then(function(r){ if(r){ $('sv-setup-form').style.display='none'; $('sv-setup-item').value=''; $('sv-setup-amount').value=''; loadSetupExpenses(); toast('Added','ok'); } });
+  });
+
+  function loadSetupExpenses() {
+    api(base()+'/setup-expenses').then(function(rows){
+      rows = rows||[];
+      var tbody=$('sv-setup-tbody'), tfoot=$('sv-setup-tfoot');
+      if (!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="4">No setup expenses yet</td></tr>'; tfoot.style.display='none'; return; }
+      var total=rows.reduce(function(a,r){return a+r.amount;},0);
+      tbody.innerHTML = rows.map(function(r){
+        return '<tr><td class="td-em">'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td style="text-align:right;">'+fmtEGP(r.amount)+'</td>'+
+          '<td><button class="btn-danger" onclick="deleteSetupExpense('+r.id+')">×</button></td></tr>';
+      }).join('');
+      tfoot.style.display=''; set('sv-setup-total', fmtEGP(total));
+    });
+  }
+
+  window.deleteSetupExpense = function(id){
+    if (!confirm('Delete this expense?')) return;
+    api(base()+'/setup-expenses/'+id, {method:'DELETE'}).then(function(){ loadSetupExpenses(); toast('Deleted','ok'); });
+  };
+
+  // Recurring expenses
+  $('sv-add-rec-btn').addEventListener('click', function(){
+    $('sv-rec-form').style.display = $('sv-rec-form').style.display==='none' ? 'block' : 'none';
+  });
+  $('sv-rec-cancel').addEventListener('click', function(){ $('sv-rec-form').style.display='none'; });
+
+  window.handleRecFreqChange = function(){
+    var freq = $('sv-rec-freq').value;
+    var isP = freq==='Percent of Sales', isW=freq==='Weekly', isM=freq==='Monthly';
+    $('sv-rec-amount-group').style.display = isP?'none':'block';
+    $('sv-rec-extra-row').style.display = (isP||isW||isM)?'grid':'none';
+    $('sv-rec-pct-group').style.display   = isP?'block':'none';
+    $('sv-rec-monthly-group').style.display = isM?'block':'none';
+    $('sv-rec-weekly-group').style.display  = isW?'block':'none';
+  };
+
+  $('sv-rec-save').addEventListener('click', function(){
+    var item=$('sv-rec-item').value.trim(), freq=$('sv-rec-freq').value;
+    if (!item) { toast('Item name required','err'); return; }
+    var body = { item:item, frequency:freq };
+    if (freq==='Percent of Sales') body.percent_rate = parseFloat($('sv-rec-pct').value)||0;
+    else body.amount = parseFloat($('sv-rec-amount').value)||0;
+    if (freq==='Monthly') body.monthly_due_date = parseInt($('sv-rec-monthly-day').value)||1;
+    if (freq==='Weekly')  body.weekly_due_day   = parseInt($('sv-rec-weekly-day').value)||0;
+    api(base()+'/recurring-expenses', {method:'POST', body:JSON.stringify(body)})
+      .then(function(r){ if(r){ $('sv-rec-form').style.display='none'; $('sv-rec-item').value=''; loadRecurringExpenses(); toast('Added','ok'); } });
+  });
+
+  function loadRecurringExpenses() {
+    api(base()+'/recurring-expenses').then(function(rows){
+      rows=rows||[];
+      var tbody=$('sv-rec-tbody');
+      if (!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No recurring expenses yet</td></tr>'; return; }
+      tbody.innerHTML=rows.map(function(r){
+        var amtStr = r.frequency==='Percent of Sales' ? fmtPct(r.percent_rate*100) : fmtEGP(r.amount);
+        var activeHtml='<label class="toggle"><input type="checkbox"'+(r.active?'checked':'')+ ' onchange="toggleRecurring('+r.id+',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>';
+        return '<tr><td class="td-em">'+esc(r.item)+'</td><td>'+esc(r.frequency)+'</td><td>'+amtStr+'</td><td>'+activeHtml+'</td>'+
+          '<td><button class="btn-danger" onclick="deleteRecurring('+r.id+')">×</button></td></tr>';
+      }).join('');
+    });
+  }
+
+  window.toggleRecurring = function(id, active){
+    api(base()+'/recurring-expenses/'+id, {method:'PUT', body:JSON.stringify({active:active})});
+  };
+
+  window.deleteRecurring = function(id){
+    if (!confirm('Delete this recurring expense?')) return;
+    api(base()+'/recurring-expenses/'+id, {method:'DELETE'}).then(function(){ loadRecurringExpenses(); toast('Deleted','ok'); });
+  };
+
+  /* ═══════════════════════════════════════════════════════
+     DAILY INPUTS TAB
+  ═══════════════════════════════════════════════════════ */
+  var dailyDate = todayStr();
+
+  function loadDailyTab() {
+    updateDailyDateLabel();
+    if (IS_DEMO) { $('daily-rev-status').textContent='(demo mode — connect to backend to log data)'; return; }
+    loadDailyRevenue();
+    loadDailyDrawer();
+    loadDailyExpenses();
+    loadDailyTransfers();
+    loadDailyDue();
+  }
+
+  function updateDailyDateLabel() {
+    set('daily-date-label', fmtDate(dailyDate));
+    // Disable future nav
+    $('daily-next').disabled = dailyDate >= todayStr();
+  }
+
+  $('daily-prev').addEventListener('click', function(){ dailyDate=addDays(dailyDate,-1); loadDailyTab(); });
+  $('daily-next').addEventListener('click', function(){ if(dailyDate<todayStr()){dailyDate=addDays(dailyDate,1); loadDailyTab();} });
+  $('daily-today-btn').addEventListener('click', function(){ dailyDate=todayStr(); loadDailyTab(); });
+
+  // Revenue
+  ['daily-rev-cash','daily-rev-visa','daily-rev-talabat'].forEach(function(id){
+    $(id).addEventListener('input', updateRevPreview);
+  });
+
+  function updateRevPreview() {
+    var cash=parseFloat($('daily-rev-cash').value)||0;
+    var visa=parseFloat($('daily-rev-visa').value)||0;
+    var talGross=parseFloat($('daily-rev-talabat').value)||0;
+    if (!cash && !visa && !talGross) { $('daily-rev-preview').style.display='none'; return; }
+    var comm = talGross*TALABAT_RATE, talNet=talGross-comm;
+    var total=cash+visa+talNet;
+    set('rp-tal-net', fmtEGP(talNet)); set('rp-tal-comm', fmtEGP(comm)); set('rp-total', fmtEGP(total));
+    $('daily-rev-preview').style.display='flex';
+  }
+
+  function loadDailyRevenue() {
+    api(base()+'/revenue/'+dailyDate).then(function(r){
+      if (!r) return;
+      $('daily-rev-cash').value    = r.revenue_cash||'';
+      $('daily-rev-visa').value    = r.revenue_visa||'';
+      $('daily-rev-talabat').value = r.revenue_talabat_gross||'';
+      set('daily-rev-status', r.exists ? 'Saved' : '');
+      updateRevPreview();
+    });
+  }
+
+  $('daily-rev-save').addEventListener('click', function(){
+    var body={revenue_cash:parseFloat($('daily-rev-cash').value)||0, revenue_visa:parseFloat($('daily-rev-visa').value)||0, revenue_talabat_gross:parseFloat($('daily-rev-talabat').value)||0};
+    api(base()+'/revenue/'+dailyDate, {method:'PUT', body:JSON.stringify(body)}).then(function(r){
+      if(r){ set('daily-rev-status','Saved'); toast('Revenue saved','ok'); loadDailyDrawer(); }
     });
   });
+
+  // Cash Drawer
+  function loadDailyDrawer() {
+    api(base()+'/cash-drawer/'+dailyDate).then(function(r){
+      if (!r) return;
+      $('daily-drawer-opening').value = r.opening_cash != null ? r.opening_cash : '';
+      $('daily-drawer-actual').value  = r.actual_counted_cash != null ? r.actual_counted_cash : '';
+      var cells='';
+      cells += drawerCell('Opening',r.opening_cash,'');
+      cells += drawerCell('Cash In (Revenue)',r.cash_revenue,'');
+      cells += drawerCell('Cash Out (Exp+Transfers)', (r.cash_expenses_paid_out||0)+(r.cash_transferred_out||0), '');
+      cells += drawerCell('Expected Closing',r.expected_closing_cash,'');
+      cells += drawerCell('Actual Counted',r.actual_counted_cash,'');
+      cells += drawerCell('Variance',r.variance, r.variance==null?'':r.variance>0?'pos':r.variance<0?'neg':'neu');
+      $('daily-drawer-computed').innerHTML=cells;
+      set('daily-drawer-status', r.actual_counted_cash!=null ? 'Counted' : r.expected_closing_cash!=null ? 'Estimated' : '');
+    });
+  }
+
+  function drawerCell(label,val,cls) {
+    var valStr = val==null ? '—' : fmtEGP(val);
+    return '<div class="drawer-cell"><div class="drawer-cell-label">'+label+'</div><div class="drawer-cell-val '+(cls||'')+'">'+valStr+'</div></div>';
+  }
+
+  $('daily-drawer-save').addEventListener('click', function(){
+    var body={};
+    var op=$('daily-drawer-opening').value; if(op!=='') body.opening_cash=parseFloat(op)||0;
+    var ac=$('daily-drawer-actual').value;  if(ac!=='') body.actual_counted_cash=parseFloat(ac)||0;
+    api(base()+'/cash-drawer/'+dailyDate, {method:'PUT', body:JSON.stringify(body)}).then(function(r){
+      if(r){ toast('Cash drawer saved','ok'); loadDailyDrawer(); }
+    });
+  });
+
+  // Expenses
+  $('daily-exp-toggle').addEventListener('click', function(){ var f=$('daily-exp-form'); f.style.display=f.style.display==='none'?'block':'none'; });
+  $('daily-exp-cancel').addEventListener('click', function(){ $('daily-exp-form').style.display='none'; });
+  $('daily-exp-save').addEventListener('click', function(){
+    var item=$('daily-exp-item').value.trim(), cat=$('daily-exp-cat').value, amt=parseFloat($('daily-exp-amount').value)||0, method=$('daily-exp-method').value, paidby=$('daily-exp-paidby').value.trim();
+    if (!item) { toast('Item required','err'); return; }
+    api(base()+'/expenses', {method:'POST', body:JSON.stringify({date:dailyDate,category:cat,item:item,amount:amt,payment_method:method,paid_by:paidby||null})})
+      .then(function(r){ if(r){ $('daily-exp-form').style.display='none'; $('daily-exp-item').value=''; $('daily-exp-amount').value=''; loadDailyExpenses(); toast('Expense added','ok'); } });
+  });
+
+  function loadDailyExpenses() {
+    api(base()+'/expenses?date='+dailyDate).then(function(rows){
+      rows=rows||[];
+      var tbody=$('daily-exp-tbody'), tfoot=$('daily-exp-tfoot');
+      if (!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No expenses logged for this date</td></tr>'; tfoot.style.display='none'; return; }
+      var total=rows.reduce(function(a,r){return a+r.amount;},0);
+      tbody.innerHTML=rows.map(function(r){
+        return '<tr><td class="td-em">'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td>'+esc(r.payment_method||'—')+'</td><td style="text-align:right;">'+fmtEGP(r.amount)+'</td>'+
+          '<td><button class="btn-danger" onclick="deleteDailyExpense('+r.id+')">×</button></td></tr>';
+      }).join('');
+      tfoot.style.display=''; set('daily-exp-total', fmtEGP(total));
+    });
+  }
+
+  window.deleteDailyExpense = function(id){
+    api(base()+'/expenses/'+id, {method:'DELETE'}).then(function(){ loadDailyExpenses(); toast('Deleted','ok'); });
+  };
+
+  // Transfers
+  $('daily-xfer-toggle').addEventListener('click', function(){ var f=$('daily-xfer-form'); f.style.display=f.style.display==='none'?'block':'none';
+    $('daily-xfer-from').value=$('daily-xfer-to').value=dailyDate;
+  });
+  $('daily-xfer-cancel').addEventListener('click', function(){ $('daily-xfer-form').style.display='none'; });
+  $('daily-xfer-save').addEventListener('click', function(){
+    var source=$('daily-xfer-source').value, amt=parseFloat($('daily-xfer-amount').value)||0, from=$('daily-xfer-from').value, to=$('daily-xfer-to').value;
+    if (!from||!to) { toast('Period dates required','err'); return; }
+    api(base()+'/transfers', {method:'POST', body:JSON.stringify({date_received:dailyDate,source:source,amount_received:amt,period_from:from,period_to:to})})
+      .then(function(r){ if(r){ $('daily-xfer-form').style.display='none'; $('daily-xfer-amount').value=''; loadDailyTransfers(); toast('Transfer logged','ok'); } });
+  });
+
+  function loadDailyTransfers() {
+    api(base()+'/transfers?date='+dailyDate).then(function(rows){
+      rows=rows||[];
+      var tbody=$('daily-xfer-tbody');
+      if (!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="6">No transfers logged for this date</td></tr>'; return; }
+      tbody.innerHTML=rows.map(function(r){
+        var diff=(r.amount_received||0)-(r.expected_amount||0);
+        var diffStr=diff===0?'—':(diff>0?'+':'')+fmtEGP(diff);
+        var diffCls=diff>0?'td-pos':diff<0?'td-neg':'';
+        return '<tr><td class="td-em">'+esc(r.source)+'</td><td style="font-size:11px;">'+esc(r.period_from)+' → '+esc(r.period_to)+'</td>'+
+          '<td style="text-align:right;">'+fmtEGP(r.amount_received)+'</td><td style="text-align:right;color:var(--t3)">'+fmtEGP(r.expected_amount)+'</td>'+
+          '<td class="'+diffCls+'" style="text-align:right;">'+diffStr+'</td>'+
+          '<td><button class="btn-danger" onclick="deleteTransfer('+r.id+')">×</button></td></tr>';
+      }).join('');
+    });
+  }
+
+  window.deleteTransfer = function(id){
+    api(base()+'/transfers/'+id, {method:'DELETE'}).then(function(){ loadDailyTransfers(); toast('Deleted','ok'); });
+  };
+
+  // Recurring due
+  function loadDailyDue() {
+    api(base()+'/recurring-due/'+dailyDate).then(function(rows){
+      rows=rows||[];
+      var sec=$('daily-due-section');
+      if (!rows.length){ sec.style.display='none'; return; }
+      sec.style.display='block';
+      sec.innerHTML='<div class="due-banner"><div class="due-banner-title">Due Today</div>'+
+        rows.map(function(r){
+          var amtStr=r.due_amount?fmtEGP(r.due_amount):'varies';
+          return '<div class="due-item"><span class="due-item-name">'+esc(r.item)+'</span><span class="due-item-amt">'+amtStr+'</span>'+
+            (r.logged?'<span class="due-item-logged">✓ Logged</span>':'<button class="btn-ghost btn-sm" onclick="logDueExpense('+r.id+',\''+esc(r.item)+'\','+((r.due_amount)||0)+')">Log it</button>')+
+            '</div>';
+        }).join('')+'</div>';
+    });
+  }
+
+  window.logDueExpense = function(recurringId, itemName, amount){
+    var body={date:dailyDate,category:'Recurring',item:itemName,amount:amount,payment_method:'Cash',recurring_expense_id:recurringId};
+    api(base()+'/expenses', {method:'POST', body:JSON.stringify(body)}).then(function(r){
+      if(r){ toast('Logged: '+itemName,'ok'); loadDailyExpenses(); loadDailyDue(); }
+    });
+  };
+
+  /* ═══════════════════════════════════════════════════════
+     CALENDAR TAB
+  ═══════════════════════════════════════════════════════ */
+  var calYear, calMonth, allNotes={}, noteEditorDate=null;
+
+  function loadCalendar() {
+    var now=new Date();
+    calYear=now.getFullYear(); calMonth=now.getMonth();
+    if (IS_DEMO) { allNotes={}; renderCalendar(); renderNotesList(); return; }
+    api(base()+'/calendar-notes').then(function(rows){
+      allNotes={};
+      (rows||[]).forEach(function(r){ allNotes[r.date]=r.note; });
+      renderCalendar();
+      renderNotesList();
+    });
+  }
+
+  function renderCalendar() {
+    var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    set('cal-month-label', months[calMonth]+' '+calYear);
+    var first=new Date(calYear,calMonth,1), lastDay=new Date(calYear,calMonth+1,0).getDate();
+    var startDow=first.getDay(); // 0=Sun
+    var today=todayStr();
+    var html='';
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(function(d){ html+='<div class="cal-dow">'+d+'</div>'; });
+    for(var i=0;i<startDow;i++) html+='<div class="cal-day other-month"></div>';
+    for(var d=1;d<=lastDay;d++){
+      var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var cls='cal-day'+(ds===today?' today':'')+(allNotes[ds]?' has-note':'');
+      html+='<div class="'+cls+'" onclick="openNoteEditor(\''+ds+'\')"><span class="cal-day-num">'+d+'</span></div>';
+    }
+    $('cal-grid').innerHTML=html;
+  }
+
+  window.openNoteEditor = function(ds){
+    noteEditorDate=ds;
+    set('note-editor-head','Note for '+fmtDate(ds));
+    $('note-textarea').value=allNotes[ds]||'';
+    $('note-editor').classList.add('open');
+    $('note-textarea').focus();
+  };
+
+  $('note-close').addEventListener('click', function(){ $('note-editor').classList.remove('open'); });
+
+  $('note-save').addEventListener('click', function(){
+    var note=$('note-textarea').value.trim();
+    if (!note) { toast('Note is empty','err'); return; }
+    api(base()+'/calendar-notes', {method:'POST', body:JSON.stringify({date:noteEditorDate, note:note})})
+      .then(function(r){ if(r){ allNotes[noteEditorDate]=note; renderCalendar(); renderNotesList(); $('note-editor').classList.remove('open'); toast('Note saved','ok'); } });
+  });
+
+  $('note-delete').addEventListener('click', function(){
+    api(base()+'/calendar-notes/'+noteEditorDate, {method:'DELETE'})
+      .then(function(){ delete allNotes[noteEditorDate]; renderCalendar(); renderNotesList(); $('note-editor').classList.remove('open'); toast('Deleted','ok'); });
+  });
+
+  $('cal-prev').addEventListener('click', function(){
+    calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar();
+  });
+  $('cal-next').addEventListener('click', function(){
+    calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar();
+  });
+
+  function renderNotesList() {
+    var dates=Object.keys(allNotes).sort().reverse();
+    var tbody=$('cal-notes-tbody');
+    if (!dates.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="3">No notes yet</td></tr>'; return; }
+    tbody.innerHTML=dates.map(function(ds){
+      return '<tr><td class="td-em" style="white-space:nowrap;">'+fmtDateShort(ds)+'</td><td style="font-size:12px;color:var(--t2);">'+esc(allNotes[ds])+'</td>'+
+        '<td><button class="btn-ghost btn-sm" onclick="openNoteEditor(\''+ds+'\')">Edit</button></td></tr>';
+    }).join('');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     INVENTORY TAB
+  ═══════════════════════════════════════════════════════ */
+  var allInvRows=[];
+
+  function loadInventory() {
+    $('inv-date').value=todayStr();
+    if (IS_DEMO) return;
+    api(base()+'/inventory').then(function(rows){
+      allInvRows=rows||[];
+      renderInvTable(allInvRows);
+    });
+  }
+
+  $('inv-save').addEventListener('click', function(){
+    var date=$('inv-date').value, item=$('inv-item').value.trim(), unit=$('inv-unit').value.trim();
+    var sys=$('inv-system').value, phys=$('inv-physical').value, notes=$('inv-notes').value.trim();
+    if (!date||!item){ toast('Date and item required','err'); return; }
+    var body={date:date,item:item,unit:unit||null, system_count:sys!==''?parseFloat(sys):null, physical_count:phys!==''?parseFloat(phys):null, notes:notes||null};
+    api(base()+'/inventory', {method:'POST', body:JSON.stringify(body)}).then(function(r){
+      if(r){ $('inv-item').value=''; $('inv-system').value=''; $('inv-physical').value=''; $('inv-notes').value=''; loadInventory(); toast('Check logged','ok'); }
+    });
+  });
+
+  $('inv-filter').addEventListener('input', function(){
+    var q=this.value.toLowerCase();
+    renderInvTable(q ? allInvRows.filter(function(r){return r.item.toLowerCase().includes(q);}) : allInvRows);
+  });
+
+  function renderInvTable(rows) {
+    var tbody=$('inv-tbody');
+    if (!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">No checks logged yet</td></tr>'; return; }
+    tbody.innerHTML=rows.map(function(r){
+      var variance=r.system_count!=null&&r.physical_count!=null ? r.physical_count-r.system_count : null;
+      var varStr=variance==null?'—':(variance>=0?'+':'')+variance.toFixed(2);
+      var varCls=variance==null?'':variance>0?'td-pos':variance<0?'td-neg':'';
+      return '<tr><td>'+esc(r.date)+'</td><td class="td-em">'+esc(r.item)+'</td><td>'+esc(r.unit||'—')+'</td>'+
+        '<td style="text-align:right;">'+(r.system_count!=null?r.system_count:'—')+'</td>'+
+        '<td style="text-align:right;">'+(r.physical_count!=null?r.physical_count:'—')+'</td>'+
+        '<td class="'+varCls+'" style="text-align:right;">'+varStr+'</td>'+
+        '<td style="font-size:11px;color:var(--t3);">'+esc(r.notes||'')+'</td>'+
+        '<td><button class="btn-danger" onclick="deleteInvCheck('+r.id+')">×</button></td></tr>';
+    }).join('');
+  }
+
+  window.deleteInvCheck = function(id){
+    api(base()+'/inventory/'+id, {method:'DELETE'}).then(function(){ loadInventory(); toast('Deleted','ok'); });
+  };
+
+  /* ═══════════════════════════════════════════════════════
+     TAB NAVIGATION
+  ═══════════════════════════════════════════════════════ */
+  var tabLoaded = {};
+
+  document.querySelectorAll('.sb-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var tab=btn.dataset.tab;
+      document.querySelectorAll('.sb-item').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-view').forEach(function(v){ v.classList.remove('visible'); });
+      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':'tab-inventory';
+      $(viewId).classList.add('visible');
+      if (!tabLoaded[tab]) {
+        tabLoaded[tab]=true;
+        if (tab==='set-values') loadSetValues();
+        else if (tab==='daily')    loadDailyTab();
+        else if (tab==='calendar') loadCalendar();
+        else if (tab==='inventory') loadInventory();
+      }
+    });
+  });
+
+  /* ── Logout ──────────────────────────────────────────── */
+  $('sb-logout').addEventListener('click', function(){
+    fetch('/api/auth/logout', {method:'POST', headers:TOKEN?{'Authorization':'Bearer '+TOKEN}:{}, credentials:'include'})
+      .finally(function(){ localStorage.removeItem('__opt_token'); localStorage.removeItem('__opt_brand_id'); localStorage.removeItem('__opt_brand_name'); window.location.replace('/signin'); });
+  });
+
+  /* ── Utility: escape HTML ────────────────────────────── */
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════════════ */
+  api('/api/me').then(function(me){
+    if (!me || me.dev_mode) { IS_DEMO=true; set('sb-brand-name','Demo Brand'); loadDemo(); return; }
+    if (!me.ok||!me.brand_id) { window.location.replace('/signin'); return; }
+    if (me.business_type!=='food_brand') { window.location.replace('/dashboard'); return; }
+    BRAND_ID=me.brand_id;
+    set('sb-brand-name', me.brand_name||me.brand_id);
+    loadHomeData();
+  }).catch(function(){ IS_DEMO=true; set('sb-brand-name','Demo Brand'); loadDemo(); });
+
 })();
 </script>
 </body>
