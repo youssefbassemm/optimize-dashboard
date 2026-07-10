@@ -2466,7 +2466,12 @@
     if (isNaN(val) || val<0 || val>100) { toast('Enter a valid rate 0–100', 'err'); return; }
     TALABAT_RATE = val/100;
     api(base()+'/settings', { method:'PUT', body: JSON.stringify({key:'talabat_commission_rate', value: TALABAT_RATE}) })
-      .then(function(){ toast('Rate saved', 'ok'); });
+      .then(function(){
+        toast('Rate saved', 'ok');
+        dirtyTabs('home', 'forecast');
+        // Keep Settings tab in sync
+        var stEl = $('st-talabat-rate'); if (stEl) stEl.value = val.toFixed(1);
+      });
   });
 
   // Setup expenses
@@ -2478,7 +2483,7 @@
     var item=$('sv-setup-item').value.trim(), cat=$('sv-setup-cat').value, amt=parseFloat($('sv-setup-amount').value)||0;
     if (!item) { toast('Item name required','err'); return; }
     api(base()+'/setup-expenses', { method:'POST', body:JSON.stringify({item:item,category:cat,amount:amt}) })
-      .then(function(r){ if(r){ $('sv-setup-form').style.display='none'; $('sv-setup-item').value=''; $('sv-setup-amount').value=''; loadSetupExpenses(); toast('Added','ok'); } });
+      .then(function(r){ if(r){ $('sv-setup-form').style.display='none'; $('sv-setup-item').value=''; $('sv-setup-amount').value=''; loadSetupExpenses(); toast('Added','ok'); dirtyTabs('home'); } });
   });
 
   function loadSetupExpenses() {
@@ -2497,7 +2502,7 @@
 
   window.deleteSetupExpense = function(id){
     if (!confirm('Delete this expense?')) return;
-    api(base()+'/setup-expenses/'+id, {method:'DELETE'}).then(function(){ loadSetupExpenses(); toast('Deleted','ok'); });
+    api(base()+'/setup-expenses/'+id, {method:'DELETE'}).then(function(){ loadSetupExpenses(); toast('Deleted','ok'); dirtyTabs('home'); });
   };
 
   // Recurring expenses
@@ -2525,7 +2530,7 @@
     if (freq==='Monthly') body.monthly_due_date = parseInt($('sv-rec-monthly-day').value)||1;
     if (freq==='Weekly')  body.weekly_due_day   = parseInt($('sv-rec-weekly-day').value)||0;
     api(base()+'/recurring-expenses', {method:'POST', body:JSON.stringify(body)})
-      .then(function(r){ if(r){ $('sv-rec-form').style.display='none'; $('sv-rec-item').value=''; loadRecurringExpenses(); toast('Added','ok'); } });
+      .then(function(r){ if(r){ $('sv-rec-form').style.display='none'; $('sv-rec-item').value=''; loadRecurringExpenses(); toast('Added','ok'); dirtyTabs('daily'); } });
   });
 
   function loadRecurringExpenses() {
@@ -2548,7 +2553,7 @@
 
   window.deleteRecurring = function(id){
     if (!confirm('Delete this recurring expense?')) return;
-    api(base()+'/recurring-expenses/'+id, {method:'DELETE'}).then(function(){ loadRecurringExpenses(); toast('Deleted','ok'); });
+    api(base()+'/recurring-expenses/'+id, {method:'DELETE'}).then(function(){ loadRecurringExpenses(); toast('Deleted','ok'); dirtyTabs('daily'); });
   };
 
   /* ═══════════════════════════════════════════════════════
@@ -2606,7 +2611,7 @@
   $('daily-rev-save').addEventListener('click', function(){
     var body={revenue_cash:parseFloat($('daily-rev-cash').value)||0, revenue_visa:parseFloat($('daily-rev-visa').value)||0, revenue_talabat_gross:parseFloat($('daily-rev-talabat').value)||0};
     api(base()+'/revenue/'+dailyDate, {method:'PUT', body:JSON.stringify(body)}).then(function(r){
-      if(r){ set('daily-rev-status','Saved'); toast('Revenue saved','ok'); loadDailyDrawer(); }
+      if(r){ set('daily-rev-status','Saved'); toast('Revenue saved','ok'); loadDailyDrawer(); dirtyTabs('home','forecast'); }
     });
   });
 
@@ -2638,7 +2643,7 @@
     var op=$('daily-drawer-opening').value; if(op!=='') body.opening_cash=parseFloat(op)||0;
     var ac=$('daily-drawer-actual').value;  if(ac!=='') body.actual_counted_cash=parseFloat(ac)||0;
     api(base()+'/cash-drawer/'+dailyDate, {method:'PUT', body:JSON.stringify(body)}).then(function(r){
-      if(r){ toast('Cash drawer saved','ok'); loadDailyDrawer(); }
+      if(r){ toast('Cash drawer saved','ok'); loadDailyDrawer(); dirtyTabs('home'); }
     });
   });
 
@@ -2679,7 +2684,7 @@
     var source=$('daily-xfer-source').value, amt=parseFloat($('daily-xfer-amount').value)||0, from=$('daily-xfer-from').value, to=$('daily-xfer-to').value;
     if (!from||!to) { toast('Period dates required','err'); return; }
     api(base()+'/transfers', {method:'POST', body:JSON.stringify({date_received:dailyDate,source:source,amount_received:amt,period_from:from,period_to:to})})
-      .then(function(r){ if(r){ $('daily-xfer-form').style.display='none'; $('daily-xfer-amount').value=''; loadDailyTransfers(); toast('Transfer logged','ok'); } });
+      .then(function(r){ if(r){ $('daily-xfer-form').style.display='none'; $('daily-xfer-amount').value=''; loadDailyTransfers(); toast('Transfer logged','ok'); dirtyTabs('home'); } });
   });
 
   function loadDailyTransfers() {
@@ -2700,7 +2705,7 @@
   }
 
   window.deleteTransfer = function(id){
-    api(base()+'/transfers/'+id, {method:'DELETE'}).then(function(){ loadDailyTransfers(); toast('Deleted','ok'); });
+    api(base()+'/transfers/'+id, {method:'DELETE'}).then(function(){ loadDailyTransfers(); toast('Deleted','ok'); dirtyTabs('home'); });
   };
 
   // Recurring due
@@ -2820,7 +2825,7 @@
     if (!date||!item){ toast('Date and item required','err'); return; }
     var body={date:date,item:item,unit:unit||null, system_count:sys!==''?parseFloat(sys):null, physical_count:phys!==''?parseFloat(phys):null, notes:notes||null};
     api(base()+'/inventory', {method:'POST', body:JSON.stringify(body)}).then(function(r){
-      if(r){ $('inv-item').value=''; $('inv-system').value=''; $('inv-physical').value=''; $('inv-notes').value=''; loadInventory(); toast('Check logged','ok'); }
+      if(r){ $('inv-item').value=''; $('inv-system').value=''; $('inv-physical').value=''; $('inv-notes').value=''; loadInventory(); toast('Check logged','ok'); dirtyTabs('forecast'); }
     });
   });
 
@@ -2846,13 +2851,21 @@
   }
 
   window.deleteInvCheck = function(id){
-    api(base()+'/inventory/'+id, {method:'DELETE'}).then(function(){ loadInventory(); toast('Deleted','ok'); });
+    api(base()+'/inventory/'+id, {method:'DELETE'}).then(function(){ loadInventory(); toast('Deleted','ok'); dirtyTabs('forecast'); });
   };
 
   /* ═══════════════════════════════════════════════════════
      TAB NAVIGATION
   ═══════════════════════════════════════════════════════ */
   var tabLoaded = {};
+
+  // Mark home as loaded after startup so clicking Home re-fetches only when dirty
+  function markHomeLoaded() { tabLoaded['home'] = true; }
+
+  // Invalidate one or more tabs so they re-fetch on next visit
+  function dirtyTabs() {
+    for (var i = 0; i < arguments.length; i++) { tabLoaded[arguments[i]] = false; }
+  }
 
   document.querySelectorAll('.sb-item').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -2864,7 +2877,8 @@
       $(viewId).classList.add('visible');
       if (!tabLoaded[tab]) {
         tabLoaded[tab]=true;
-        if (tab==='set-values') loadSetValues();
+        if (tab==='home')        loadHomeData();
+        else if (tab==='set-values') loadSetValues();
         else if (tab==='daily')    loadDailyTab();
         else if (tab==='calendar') loadCalendar();
         else if (tab==='inventory') loadInventory();
@@ -3106,7 +3120,8 @@
     BRAND_ID=me.brand_id;
     set('sb-brand-name', me.brand_name||me.brand_id);
     loadHomeData();
-  }).catch(function(){ IS_DEMO=true; set('sb-brand-name','Demo Brand'); loadDemo(); });
+    markHomeLoaded();
+  }).catch(function(){ IS_DEMO=true; set('sb-brand-name','Demo Brand'); loadDemo(); markHomeLoaded(); });
 
   /* ═══════════════════════════════════════════════════════
      SETTINGS TAB
@@ -3237,7 +3252,8 @@
       var v = parseFloat($('st-talabat-rate').value);
       if (isNaN(v) || v < 0 || v > 100) { settingsFlash('st-talabat-status','Enter 0–100',true); return; }
       fbSettingPut('talabat_commission_rate', (v/100).toFixed(4), 'st-talabat-status');
-      tabLoaded['home'] = false;
+      dirtyTabs('home', 'forecast');
+      var svEl = $('sv-talabat-rate'); if (svEl) svEl.value = v.toFixed(1);
     });
 
     // Accent theme swatches
