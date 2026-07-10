@@ -108,7 +108,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // ── Webhook routes (raw body — must come before json() middleware) ─────────────
-app.use('/api/webhooks', require('./routes/webhooks'));
+// Note: routes/webhooks.js is a helper lib (fireLeadWebhook), not an HTTP router.
 // CX n8n callbacks (no auth — HMAC-secured; must be before json() so raw body available)
 app.use('/api/cx/webhook', require('./routes/cx_webhook'));
 // Calendly booking webhook (no auth — optional HMAC-secured; raw body for sig verification)
