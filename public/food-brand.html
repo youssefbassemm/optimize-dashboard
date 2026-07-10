@@ -1045,7 +1045,79 @@
       .form-row-5 { grid-template-columns: 1fr 1fr; }
       .drawer-grid { grid-template-columns: 1fr 1fr; }
       .cal-grid { gap: 2px; }
+      .fc-summary-row { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── Forecast tab ─────────────────────────────────────── */
+    .fc-summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .fc-metric {
+      background: var(--lift);
+      border-radius: var(--card-radius);
+      padding: 18px 20px;
+      border-top: 1px solid var(--rule-hi);
+      box-shadow: var(--card-shadow);
+    }
+    .fc-metric-label {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 8px;
+    }
+    .fc-metric-val {
+      font-family: var(--head);
+      font-size: 26px;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+    }
+    .fc-trend-badge {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .fc-trend-badge.up { background: rgba(90,153,104,.15); color: var(--pos); }
+    .fc-trend-badge.dn { background: rgba(155,91,91,.15);  color: var(--neg); }
+    .fc-trend-badge.flat { background: var(--rule); color: var(--t2); }
+    .fc-day-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .fc-day-row:last-child { border-bottom: none; }
+    .fc-day-name { width: 36px; font-size: 12px; color: var(--t2); font-weight: 600; }
+    .fc-day-date { width: 54px; font-size: 11px; color: var(--t3); }
+    .fc-day-bar-wrap { flex: 1; height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+    .fc-day-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--cash), color-mix(in srgb, var(--cash) 60%, var(--t1)));
+      width: 0%;
+      transition: width .7s cubic-bezier(.4,0,.2,1);
+    }
+    .fc-day-amt { width: 110px; text-align: right; font-family: var(--head); font-size: 14px; color: var(--t1); }
+    .fc-day-peak { font-size: 10px; color: var(--cash); margin-left: 4px; letter-spacing: .06em; }
+    .restock-pill {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .restock-pill.ok   { background: rgba(90,153,104,.12); color: var(--pos); }
+    .restock-pill.warn { background: rgba(200,169,122,.12); color: var(--cash); }
+    .restock-pill.crit { background: rgba(155,91,91,.12);   color: var(--neg); }
+    .restock-pill.nd   { background: var(--rule); color: var(--t3); }
+    .fc-note { font-size: 11px; color: var(--t3); padding: 14px 0 4px; }
   </style>
 </head>
 <body>
@@ -1069,6 +1141,7 @@
       <button class="sb-item" data-tab="daily">Daily Inputs</button>
       <button class="sb-item" data-tab="calendar">Calendar</button>
       <button class="sb-item" data-tab="inventory">Inventory</button>
+      <button class="sb-item" data-tab="forecast">Forecast</button>
       <button class="sb-item" data-tab="reports">Reports</button>
     </nav>
 
@@ -1697,6 +1770,67 @@
       </div>
 
     </div><!-- /tab-inventory -->
+
+    <!-- ═══════════════════════════════════════════════════
+         FORECAST TAB
+    ═══════════════════════════════════════════════════ -->
+    <div class="tab-view" id="tab-forecast">
+
+      <!-- Revenue forecast -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Revenue Forecast</div>
+          <div id="fc-trend-badge" class="fc-trend-badge flat" style="display:none;"></div>
+        </div>
+        <div class="sec-body">
+          <div class="fc-summary-row">
+            <div class="fc-metric">
+              <div class="fc-metric-label">Next 7 Days</div>
+              <div class="fc-metric-val" id="fc-7day">—</div>
+            </div>
+            <div class="fc-metric">
+              <div class="fc-metric-label">Next 30 Days</div>
+              <div class="fc-metric-val" id="fc-30day">—</div>
+            </div>
+            <div class="fc-metric">
+              <div class="fc-metric-label">Est. Daily Average</div>
+              <div class="fc-metric-val" id="fc-daily-avg">—</div>
+            </div>
+          </div>
+          <div id="fc-days-list"></div>
+          <div class="fc-note" id="fc-rev-note"></div>
+        </div>
+      </div>
+
+      <!-- Restock forecast -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Restock Forecast</div>
+        </div>
+        <div class="sec-body p0">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Unit</th>
+                  <th style="text-align:right;">Current Stock</th>
+                  <th style="text-align:right;">Daily Use</th>
+                  <th style="text-align:right;">Days Left</th>
+                  <th>Restock By</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="fc-restock-tbody">
+                <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="fc-note" style="padding:12px 20px;">Days Left = current stock ÷ average daily consumption from inventory history</div>
+        </div>
+      </div>
+
+    </div><!-- /tab-forecast -->
 
     <!-- ═══════════════════════════════════════════════════
          REPORTS TAB
@@ -2449,7 +2583,7 @@
       document.querySelectorAll('.sb-item').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       document.querySelectorAll('.tab-view').forEach(function(v){ v.classList.remove('visible'); });
-      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':tab==='inventory'?'tab-inventory':'tab-reports';
+      var viewId = tab==='home'?'tab-home':tab==='set-values'?'tab-set-values':tab==='daily'?'tab-daily':tab==='calendar'?'tab-calendar':tab==='inventory'?'tab-inventory':tab==='forecast'?'tab-forecast':'tab-reports';
       $(viewId).classList.add('visible');
       if (!tabLoaded[tab]) {
         tabLoaded[tab]=true;
@@ -2457,10 +2591,194 @@
         else if (tab==='daily')    loadDailyTab();
         else if (tab==='calendar') loadCalendar();
         else if (tab==='inventory') loadInventory();
+        else if (tab==='forecast')  loadForecast();
         else if (tab==='reports')   setupReports();
       }
     });
   });
+
+  /* ═══════════════════════════════════════════════════════
+     FORECAST TAB
+  ═══════════════════════════════════════════════════════ */
+  var DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function loadForecast() {
+    if (IS_DEMO) {
+      renderRevenueForecast(buildDemoData().revenueRows);
+      renderRestockForecast(demoRestockRows());
+      return;
+    }
+    Promise.all([
+      api(base()+'/home-summary'),
+      api(base()+'/inventory')
+    ]).then(function(res){
+      var summary = res[0]||{}, inv = res[1]||[];
+      renderRevenueForecast(summary.revenueRows||[]);
+      renderRestockForecast(inv);
+    });
+  }
+
+  function renderRevenueForecast(rows) {
+    if (!rows || !rows.length) {
+      $('fc-rev-note').textContent = 'No revenue data yet — start logging daily inputs to unlock projections.';
+      return;
+    }
+
+    // Per-weekday averages from historical data
+    var wdSum = [0,0,0,0,0,0,0], wdCnt = [0,0,0,0,0,0,0];
+    rows.forEach(function(r){
+      var d = new Date(r.date+'T12:00:00Z');
+      var wd = d.getUTCDay();
+      var total = (r.revenue_cash||0) + (r.revenue_visa||0) + (r.revenue_talabat_gross||0);
+      wdSum[wd] += total; wdCnt[wd]++;
+    });
+    var wdAvg = wdSum.map(function(s,i){ return wdCnt[i] ? Math.round(s/wdCnt[i]) : 0; });
+    var overallAvg = rows.reduce(function(a,r){ return a+(r.revenue_cash||0)+(r.revenue_visa||0)+(r.revenue_talabat_gross||0); },0) / rows.length;
+
+    // Trend: last 7 days vs prior 7
+    var last7  = rows.slice(-7).reduce(function(a,r){ return a+(r.revenue_cash||0)+(r.revenue_visa||0)+(r.revenue_talabat_gross||0); },0);
+    var prior7 = rows.slice(-14,-7).reduce(function(a,r){ return a+(r.revenue_cash||0)+(r.revenue_visa||0)+(r.revenue_talabat_gross||0); },0);
+    var trendPct = prior7 > 0 ? (last7-prior7)/prior7 : 0;
+    var trendMul = 1 + trendPct * 0.4; // dampen: don't extrapolate wild swings fully
+
+    // Next 7 days projections
+    var today = new Date();
+    var projDays = [];
+    for (var i = 1; i <= 7; i++) {
+      var d = new Date(today); d.setDate(today.getDate()+i);
+      var wd = d.getDay();
+      var base2 = wdAvg[wd] || Math.round(overallAvg);
+      projDays.push({ date: d, wd: wd, projected: Math.round(base2 * trendMul) });
+    }
+
+    var maxProj = Math.max.apply(null, projDays.map(function(p){ return p.projected; })) || 1;
+    var peakWd  = projDays.reduce(function(a,p){ return p.projected > a.projected ? p : a; }, projDays[0]).wd;
+    var total7  = projDays.reduce(function(a,p){ return a+p.projected; },0);
+    var dailyAvg = Math.round(total7/7);
+
+    $('fc-7day').textContent     = fmtEGP(total7);
+    $('fc-30day').textContent    = fmtEGP(dailyAvg*30);
+    $('fc-daily-avg').textContent = fmtEGP(dailyAvg);
+
+    var badge = $('fc-trend-badge');
+    if (badge && prior7 > 0) {
+      badge.style.display = 'inline-block';
+      var sign = trendPct >= 0 ? '+' : '';
+      badge.textContent = sign + (trendPct*100).toFixed(1)+'% vs prior week';
+      badge.className = 'fc-trend-badge ' + (trendPct > 0.01 ? 'up' : trendPct < -0.01 ? 'dn' : 'flat');
+    }
+
+    var list = $('fc-days-list');
+    list.innerHTML = projDays.map(function(p){
+      var barPct = Math.round(p.projected/maxProj*100);
+      var dateStr = MONTHS_SHORT[p.date.getMonth()]+' '+p.date.getDate();
+      var isPeak = p.wd === peakWd;
+      return '<div class="fc-day-row">'+
+        '<div class="fc-day-name">'+DAYS_SHORT[p.wd]+'</div>'+
+        '<div class="fc-day-date">'+dateStr+'</div>'+
+        '<div class="fc-day-bar-wrap"><div class="fc-day-bar" style="width:0%" data-w="'+barPct+'%"></div></div>'+
+        '<div class="fc-day-amt">'+fmtEGP(p.projected)+(isPeak?'<span class="fc-day-peak">PEAK</span>':'')+'</div>'+
+      '</div>';
+    }).join('');
+
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      list.querySelectorAll('.fc-day-bar').forEach(function(el){ el.style.width=el.getAttribute('data-w'); });
+    }); });
+
+    var n = rows.length;
+    $('fc-rev-note').textContent = 'Based on '+n+'-day weekday pattern'+(prior7>0?' · '+(trendPct>=0?'↑ growing':'↓ softening')+' trend applied':'');
+  }
+
+  function renderRestockForecast(rows) {
+    rows = rows||[];
+    var items = {};
+    rows.forEach(function(r){
+      if (!r.item) return;
+      var key = r.item.trim().toLowerCase();
+      if (!items[key]) items[key] = { name:r.item, unit:r.unit||'', checks:[] };
+      if (r.physical_count != null) items[key].checks.push({ date:r.date, count:r.physical_count });
+    });
+
+    var today = new Date();
+    var results = [];
+    Object.keys(items).forEach(function(key){
+      var it = items[key];
+      var checks = it.checks.sort(function(a,b){ return a.date<b.date?-1:1; });
+      if (!checks.length) return;
+      var latest = checks[checks.length-1];
+      var current = latest.count;
+      var dailyUse = null;
+
+      // Use all sequential pairs to get a better average usage rate
+      if (checks.length >= 2) {
+        var totalUsed = 0, totalDays = 0;
+        for (var i = 1; i < checks.length; i++) {
+          var days = Math.max(1, (new Date(checks[i].date)-new Date(checks[i-1].date))/86400000);
+          var used = checks[i-1].count - checks[i].count;
+          if (used > 0) { totalUsed += used; totalDays += days; }
+        }
+        if (totalDays > 0 && totalUsed > 0) dailyUse = totalUsed/totalDays;
+      }
+
+      var daysLeft = dailyUse ? current/dailyUse : null;
+      var restockDate = null;
+      if (daysLeft != null) {
+        restockDate = new Date(today);
+        restockDate.setDate(today.getDate() + Math.floor(daysLeft));
+      }
+
+      results.push({ name:it.name, unit:it.unit, current:current, dailyUse:dailyUse, daysLeft:daysLeft, restockDate:restockDate });
+    });
+
+    results.sort(function(a,b){
+      if (a.daysLeft==null && b.daysLeft==null) return 0;
+      if (a.daysLeft==null) return 1;
+      if (b.daysLeft==null) return -1;
+      return a.daysLeft-b.daysLeft;
+    });
+
+    var tbody = $('fc-restock-tbody');
+    if (!results.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No inventory checks yet — log checks in the Inventory tab to unlock restock forecasting</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = results.map(function(r){
+      var status = r.daysLeft==null ? 'nd' : r.daysLeft<=3 ? 'crit' : r.daysLeft<=7 ? 'warn' : 'ok';
+      var pillLabel = {nd:'No Data',crit:'URGENT',warn:'Soon',ok:'OK'}[status];
+      var daysStr = r.daysLeft!=null ? r.daysLeft.toFixed(1)+' d' : '—';
+      var useStr  = r.dailyUse!=null ? r.dailyUse.toFixed(2)+'/day' : '—';
+      var rDateStr = r.restockDate ? MONTHS_SHORT[r.restockDate.getMonth()]+' '+r.restockDate.getDate() : '—';
+      return '<tr>'+
+        '<td class="td-em">'+esc(r.name)+'</td>'+
+        '<td>'+esc(r.unit)+'</td>'+
+        '<td style="text-align:right;font-variant-numeric:tabular-nums;">'+r.current+'</td>'+
+        '<td style="text-align:right;color:var(--t2);font-variant-numeric:tabular-nums;">'+useStr+'</td>'+
+        '<td style="text-align:right;font-family:var(--head);'+(status==='crit'?'color:var(--neg)':status==='warn'?'color:var(--cash)':'')+'">'+daysStr+'</td>'+
+        '<td>'+rDateStr+'</td>'+
+        '<td><span class="restock-pill '+status+'">'+pillLabel+'</span></td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  function demoRestockRows() {
+    var t = new Date();
+    var ago = function(n){ var d=new Date(t); d.setDate(t.getDate()-n); return d.toISOString().slice(0,10); };
+    return [
+      {item:'Flour',     unit:'kg',  date:ago(8),  physical_count:52},
+      {item:'Flour',     unit:'kg',  date:ago(4),  physical_count:24},
+      {item:'Flour',     unit:'kg',  date:ago(0),  physical_count:3},
+      {item:'Cooking Oil',unit:'L',  date:ago(6),  physical_count:18},
+      {item:'Cooking Oil',unit:'L',  date:ago(2),  physical_count:10},
+      {item:'Sugar',     unit:'kg',  date:ago(10), physical_count:40},
+      {item:'Sugar',     unit:'kg',  date:ago(3),  physical_count:33},
+      {item:'Packaging', unit:'pcs', date:ago(5),  physical_count:500},
+      {item:'Packaging', unit:'pcs', date:ago(1),  physical_count:260},
+      {item:'Butter',    unit:'kg',  date:ago(7),  physical_count:12},
+      {item:'Butter',    unit:'kg',  date:ago(2),  physical_count:8},
+    ];
+  }
 
   /* ═══════════════════════════════════════════════════════
      REPORTS TAB
