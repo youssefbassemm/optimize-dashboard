@@ -904,6 +904,40 @@ function runMigrations() {
     );
   `);
 
+  // ── One-time: remove bunzyeg@gmail.com so they can re-register as food_brand ──
+  try {
+    const already = db.prepare("SELECT value FROM system_settings WHERE key='removed_bunzy_account'").get();
+    if (!already) {
+      const user = db.prepare("SELECT * FROM users WHERE email='bunzyeg@gmail.com'").get();
+      if (user) {
+        const brandIds = db.prepare('SELECT brand_id FROM user_brands WHERE user_id=?').all(user.id).map(r => r.brand_id);
+        const deleteBrand = db.transaction((brandId) => {
+          const tables = [
+            'cx_messages','cx_flows','cx_settings','impersonation_sessions',
+            'integrations','tier_changes','events','orders_cache','inventory_cache',
+            'campaign_cache','ig_cache','sync_logs','webhook_queue',
+            'fb_settings','fb_setup_expenses','fb_recurring_expenses',
+            'fb_daily_revenue','fb_daily_expenses','fb_bank_transfers',
+            'fb_cash_drawer_check','fb_inventory_check','fb_calendar_notes',
+          ];
+          for (const t of tables) {
+            try { db.prepare(`DELETE FROM ${t} WHERE brand_id=?`).run(brandId); } catch(_) {}
+          }
+          db.prepare('DELETE FROM user_brands WHERE brand_id=?').run(brandId);
+          db.prepare('DELETE FROM brands WHERE id=?').run(brandId);
+        });
+        for (const brandId of brandIds) deleteBrand(brandId);
+        db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
+        db.prepare('DELETE FROM password_reset_tokens WHERE user_id=?').run(user.id);
+        db.prepare('DELETE FROM users WHERE id=?').run(user.id);
+        console.log('[migrations] removed bunzyeg@gmail.com account and all brand data');
+      }
+      db.prepare("INSERT OR IGNORE INTO system_settings (key,value) VALUES ('removed_bunzy_account','1')").run();
+    }
+  } catch (err) {
+    console.warn('[migrations] bunzy account removal failed (non-fatal):', err.message);
+  }
+
   console.log('[migrations] ready');
 }
 
