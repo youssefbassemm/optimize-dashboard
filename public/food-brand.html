@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard — Optimize</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --t1:   #F0F0F0;
+      --t2:   #888888;
+      --t3:   #555555;
+      --bg:   #0A0A0A;
+      --sb:   #111111;
+      --sans: 'DM Sans', sans-serif;
+      --head: 'Syne', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--t1);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--sb);
+      border-right: 1px solid rgba(255,255,255,.045);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px;
+      gap: 32px;
+    }
+    .sb-wordmark {
+      font-family: var(--head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--t1);
+    }
+    .sb-brand {
+      font-size: 11px;
+      color: var(--t3);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .sb-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .sb-item {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--t3);
+      padding: 8px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+      letter-spacing: .02em;
+    }
+    .sb-item:hover, .sb-item.active {
+      background: rgba(255,255,255,.05);
+      color: var(--t1);
+    }
+    .sb-logout {
+      font-size: 11px;
+      color: var(--t3);
+      padding: 8px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: color 150ms;
+    }
+    .sb-logout:hover { color: var(--t1); }
+
+    /* ── Main area ── */
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      gap: 16px;
+    }
+
+    .placeholder-icon {
+      font-size: 48px;
+      opacity: .6;
+    }
+
+    .placeholder-head {
+      font-family: var(--head);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--t1);
+      text-align: center;
+    }
+
+    .placeholder-sub {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--t3);
+      text-align: center;
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    .placeholder-badge {
+      margin-top: 8px;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 5px 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="sidebar">
+    <div>
+      <div class="sb-wordmark">Optimize</div>
+    </div>
+    <div class="sb-brand" id="sb-brand-name">Food Brand</div>
+    <nav class="sb-nav">
+      <div class="sb-item active">Home</div>
+      <div class="sb-item">Set Values</div>
+      <div class="sb-item">Daily Inputs</div>
+      <div class="sb-item">Calendar</div>
+      <div class="sb-item">Inventory</div>
+    </nav>
+    <div class="sb-logout" id="sb-logout">Sign out</div>
+  </div>
+
+  <main class="main">
+    <div class="placeholder-icon">🍔</div>
+    <div class="placeholder-head">Food Brand Dashboard</div>
+    <div class="placeholder-sub">
+      Your restaurant operations workspace is ready. The full dashboard is being designed — check back soon.
+    </div>
+    <div class="placeholder-badge">Coming Soon</div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var tok = localStorage.getItem('__opt_token');
+
+  // Verify session; redirect non-food-brand workspaces out
+  fetch('/api/me', {
+    headers: tok ? { 'Authorization': 'Bearer ' + tok } : {},
+    credentials: 'include',
+  })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !d.ok || d.dev_mode) return;
+      if (!d.brand_id) { window.location.replace('/signin'); return; }
+      if (d.business_type !== 'food_brand') { window.location.replace('/dashboard'); return; }
+
+      // Populate sidebar brand name
+      var el = document.getElementById('sb-brand-name');
+      if (el && d.brand_name) el.textContent = d.brand_name;
+    })
+    .catch(function () {});
+
+  // Logout
+  document.getElementById('sb-logout').addEventListener('click', function () {
+    var t = localStorage.getItem('__opt_token');
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: t ? { 'Authorization': 'Bearer ' + t } : {},
+      credentials: 'include',
+    }).finally(function () {
+      localStorage.removeItem('__opt_token');
+      localStorage.removeItem('__opt_brand_id');
+      localStorage.removeItem('__opt_brand_name');
+      window.location.replace('/signin');
+    });
+  });
+})();
+</script>
+</body>
+</html>

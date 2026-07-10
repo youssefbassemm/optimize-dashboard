@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<title>Book a Strategy Call — Optimize</title>
+<meta name="description" content="Tell us about your brand. We'll set up the call after."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+
+<style>
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ──────────────────────────────────────────────────────────────── */
+:root {
+  --bg:       #0a0a0a;
+  --surface:  #111111;
+  --border:   rgba(255,255,255,0.08);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #d4d4d4;
+  --muted:    #888888;
+  --dim:      #555;
+  --white:    #f0f0f0;
+  --accent:   #d4d4d4;   /* matches landing --blue */
+  --display:  'Syne', sans-serif;
+  --sans:     'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius:   14px;
+  --input-h:  56px;
+  --tp:       env(safe-area-inset-top, 0px);
+  --bp:       env(safe-area-inset-bottom, 0px);
+}
+
+html { background: var(--bg); }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 48px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,10,10,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logomark {
+  width: 16px; height: 16px;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.nav-logomark svg { width: 16px; height: 16px; }
+.nav-wordmark {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+.nav-back {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-family: var(--sans);
+}
+.nav-back:hover { color: var(--white); }
+
+/* ── Page wrapper ────────────────────────────────────────────────────────── */
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: calc(64px + 60px) 24px calc(60px + var(--bp)); /* 64px = fixed nav height */
+}
+
+/* ── Hero text ───────────────────────────────────────────────────────────── */
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: 48px;
+  max-width: 440px;
+}
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+#qualForm { display: flex; flex-direction: column; gap: 24px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+
+.field-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  font-family: var(--sans);
+}
+.field-label .req { color: var(--dim); opacity: 0.6; }
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  height: var(--input-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 16px;     /* 16px prevents iOS zoom */
+  font-weight: 400;
+  padding: 0 18px;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236f6f6f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+.field input::placeholder,
+.field select option:disabled { color: var(--dim); }
+.field select option { background: #1a1a1a; color: var(--white); }
+
+.field input:focus,
+.field select:focus { border-color: rgba(255,255,255,0.28); }
+.field input.error,
+.field select.error { border-color: rgba(220,80,80,0.7); }
+.field input.valid,
+.field select.valid { border-color: rgba(120,200,120,0.4); }
+
+.field-error {
+  font-size: 12px;
+  color: #e07070;
+  min-height: 16px;
+  transition: opacity 0.15s;
+}
+.field-error:empty { opacity: 0; }
+
+/* Radio (showroom) */
+.radio-group { display: flex; gap: 10px; }
+.radio-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--input-h);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.radio-opt input { display: none; }
+.radio-opt.selected {
+  border-color: rgba(255,255,255,0.28);
+  color: var(--white);
+  background: rgba(255,255,255,0.04);
+}
+.radio-opt.error-opt { border-color: rgba(220,80,80,0.7); }
+
+/* Conditional field */
+.conditional { transition: opacity 0.2s, max-height 0.25s; overflow: hidden; }
+.conditional.hidden { max-height: 0; opacity: 0; pointer-events: none; }
+.conditional.visible { max-height: 200px; opacity: 1; pointer-events: auto; }
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  height: 58px;
+  background: var(--white);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 100px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 8px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.submit-btn:hover { opacity: 0.88; }
+.submit-btn:active { transform: scale(0.98); opacity: 0.8; }
+.submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.submit-btn.loading { opacity: 0.7; }
+
+/* Form error banner */
+.form-error-banner {
+  background: rgba(220,80,80,0.08);
+  border: 1px solid rgba(220,80,80,0.2);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #e07070;
+  display: none;
+}
+.form-error-banner.visible { display: block; }
+
+/* ── Success / Calendly section ──────────────────────────────────────────── */
+#formSection { transition: opacity 0.4s; }
+#formSection.fading { opacity: 0; pointer-events: none; }
+
+#calendlySection {
+  display: none;
+  animation: fadeUp 0.5s ease both;
+}
+#calendlySection.visible { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.calendly-header { margin-bottom: 32px; }
+.calendly-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.calendly-label::before,
+.calendly-label::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.calendly-title {
+  font-family: var(--display);
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.calendly-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.calendly-widget-wrap {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.page-footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-brand {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--dim);
+}
+.footer-links { display: flex; gap: 20px; }
+.footer-links a {
+  font-size: 12px;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--muted); }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .nav { padding: 0 20px; height: 56px; }
+  .page { padding: calc(56px + 40px) 20px calc(48px + var(--bp)); }
+  .hero-title { font-size: 30px; }
+  .hero-sub { font-size: 14px; margin-bottom: 36px; }
+  .radio-group { flex-direction: row; gap: 8px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
+<header class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-logomark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 3l5 5-5 5M8 3l5 5-5 5" stroke="#F0F0F0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Optimize</span>
+  </a>
+  <a href="/" class="nav-back">← Home</a>
+</header>
+
+<!-- ── Page ─────────────────────────────────────────────────────────────────── -->
+<main class="page">
+
+  <!-- FORM SECTION -->
+  <div id="formSection">
+    <p class="hero-eyebrow">Strategy Call</p>
+    <h1 class="hero-title">Built for serious brands.</h1>
+    <p class="hero-sub">Share a few details about your operation. We'll set up the call.</p>
+
+    <div class="form-error-banner" id="formErrorBanner"></div>
+
+    <form id="qualForm" novalidate>
+
+      <!-- 1. Brand name -->
+      <div class="field">
+        <label class="field-label" for="f_brand_name">Brand name <span class="req">*</span></label>
+        <input type="text" id="f_brand_name" name="brand_name" autocomplete="organization"
+               placeholder="" autocapitalize="words" spellcheck="false"/>
+        <span class="field-error" id="e_brand_name"></span>
+      </div>
+
+      <!-- 2. Contact name -->
+      <div class="field">
+        <label class="field-label" for="f_contact_name">Your name <span class="req">*</span></label>
+        <input type="text" id="f_contact_name" name="contact_name" autocomplete="name"
+               placeholder="" autocapitalize="words"/>
+        <span class="field-error" id="e_contact_name"></span>
+      </div>
+
+      <!-- 3. Email -->
+      <div class="field">
+        <label class="field-label" for="f_email">Email <span class="req">*</span></label>
+        <input type="email" id="f_email" name="email" autocomplete="email"
+               placeholder="name@yourbrand.com" inputmode="email"/>
+        <span class="field-error" id="e_email"></span>
+      </div>
+
+      <!-- 4. Phone -->
+      <div class="field">
+        <label class="field-label" for="f_phone">Phone / WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="f_phone" name="phone" autocomplete="tel"
+               placeholder="01XXXXXXXXX" inputmode="tel"/>
+        <span class="field-error" id="e_phone"></span>
+      </div>
+
+      <!-- 5. Instagram handle -->
+      <div class="field">
+        <label class="field-label" for="f_ig_handle">Instagram handle <span class="req">*</span></label>
+        <input type="text" id="f_ig_handle" name="ig_handle" autocomplete="off"
+               placeholder="yourbrand" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+        <span class="field-error" id="e_ig_handle"></span>
+      </div>
+
+      <!-- 6. Website -->
+      <div class="field">
+        <label class="field-label" for="f_website">Website / Shopify URL <span class="req">*</span></label>
+        <input type="url" id="f_website" name="website" autocomplete="url"
+               placeholder="yourbrand.com" inputmode="url" autocapitalize="none" autocorrect="off"/>
+        <span class="field-error" id="e_website"></span>
+      </div>
+
+      <!-- 7. Revenue range -->
+      <div class="field">
+        <label class="field-label" for="f_revenue_range">Monthly revenue range <span class="req">*</span></label>
+        <select id="f_revenue_range" name="revenue_range">
+          <option value="" disabled selected>Select range…</option>
+          <option value="Under 50k EGP">Under 50k EGP</option>
+          <option value="50k - 200k EGP">50k – 200k EGP</option>
+          <option value="200k - 500k EGP">200k – 500k EGP</option>
+          <option value="500k - 1M EGP">500k – 1M EGP</option>
+          <option value="1M+ EGP">1M+ EGP</option>
+        </select>
+        <span class="field-error" id="e_revenue_range"></span>
+      </div>
+
+      <!-- 8. Showroom -->
+      <div class="field">
+        <span class="field-label">Selling through a showroom? <span class="req">*</span></span>
+        <div class="radio-group" role="radiogroup" aria-label="Showroom">
+          <label class="radio-opt" id="showroom_yes_lbl">
+            <input type="radio" name="has_showroom" value="yes" id="showroom_yes"/>
+            Yes
+          </label>
+          <label class="radio-opt" id="showroom_no_lbl">
+            <input type="radio" name="has_showroom" value="no" id="showroom_no"/>
+            No
+          </label>
+        </div>
+        <span class="field-error" id="e_has_showroom"></span>
+      </div>
+
+      <!-- 9. Showroom platform (conditional) -->
+      <div class="field conditional hidden" id="showroom_platform_wrap">
+        <label class="field-label" for="f_showroom_platform">Which platform? <span class="req">*</span></label>
+        <select id="f_showroom_platform" name="showroom_platform">
+          <option value="" disabled selected>Select platform…</option>
+          <option value="Locally">Locally</option>
+          <option value="Other">Other</option>
+        </select>
+        <span class="field-error" id="e_showroom_platform"></span>
+      </div>
+
+      <!-- 10. CS handled by -->
+      <div class="field">
+        <label class="field-label" for="f_cs_handled_by">Customer service currently handled by <span class="req">*</span></label>
+        <select id="f_cs_handled_by" name="cs_handled_by">
+          <option value="" disabled selected>Select…</option>
+          <option value="Myself">Myself</option>
+          <option value="One employee">One employee</option>
+          <option value="Multiple employees">Multiple employees</option>
+          <option value="Not handling well / overwhelmed">Not handling well / overwhelmed</option>
+        </select>
+        <span class="field-error" id="e_cs_handled_by"></span>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        Continue to scheduling →
+      </button>
+
+    </form>
+  </div><!-- /formSection -->
+
+  <!-- CALENDLY SECTION (hidden until form submitted) -->
+  <div id="calendlySection">
+    <div class="calendly-header">
+      <p class="calendly-label">Almost there</p>
+      <h2 class="calendly-title">Pick a time that works for you.</h2>
+      <p class="calendly-sub">Choose a 30-minute slot below. You'll get a calendar invite immediately after.</p>
+    </div>
+    <div class="calendly-widget-wrap">
+      <div id="calendlyWidget"></div>
+    </div>
+  </div>
+
+  <footer class="page-footer" id="pageFooter">
+    <span class="footer-brand">Optimize</span>
+    <nav class="footer-links">
+      <a href="/">Home</a>
+      <a href="/signin">Sign in</a>
+    </nav>
+  </footer>
+
+</main>
+
+<script>
+/* ── Constants ──────────────────────────────────────────────────────────── */
+const STORAGE_KEY = 'opt_book_form_v1';
+const PHONE_RE    = /^01[0-2,5][0-9]{8}$/;
+const IG_RE       = /^[a-z0-9._]{1,30}$/;
+const EMAIL_RE    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/* ── Source tracking — read ?source= from URL ──────────────────────────── */
+const BOOKING_SOURCE = (new URLSearchParams(window.location.search)).get('source') || 'direct';
+
+const FIELDS = ['brand_name','contact_name','email','phone','ig_handle','website','revenue_range','cs_handled_by'];
+
+/* ── Persistence: save / restore ────────────────────────────────────────── */
+function saveFormState() {
+  try {
+    const data = {};
+    FIELDS.forEach(k => { data[k] = document.getElementById('f_' + k)?.value || ''; });
+    const sr = document.querySelector('input[name="has_showroom"]:checked');
+    data.has_showroom = sr ? sr.value : '';
+    data.showroom_platform = document.getElementById('f_showroom_platform')?.value || '';
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function restoreFormState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    FIELDS.forEach(k => {
+      const el = document.getElementById('f_' + k);
+      if (el && data[k]) el.value = data[k];
+    });
+    if (data.has_showroom) {
+      const rb = document.querySelector(`input[name="has_showroom"][value="${data.has_showroom}"]`);
+      if (rb) { rb.checked = true; updateShowroomOpts(); toggleShowroomPlatform(data.has_showroom === 'yes'); }
+    }
+    if (data.showroom_platform) {
+      const sp = document.getElementById('f_showroom_platform');
+      if (sp) sp.value = data.showroom_platform;
+    }
+  } catch {}
+}
+
+function clearFormState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
+/* ── Showroom toggle ─────────────────────────────────────────────────────── */
+function updateShowroomOpts() {
+  const sr = document.querySelector('input[name="has_showroom"]:checked');
+  document.getElementById('showroom_yes_lbl').classList.toggle('selected', sr?.value === 'yes');
+  document.getElementById('showroom_no_lbl').classList.toggle('selected', sr?.value === 'no');
+}
+
+function toggleShowroomPlatform(show) {
+  const wrap = document.getElementById('showroom_platform_wrap');
+  const sel  = document.getElementById('f_showroom_platform');
+  wrap.classList.toggle('hidden', !show);
+  wrap.classList.toggle('visible', show);
+  if (!show) sel.value = '';
+}
+
+document.getElementById('showroom_yes').addEventListener('change', function() {
+  updateShowroomOpts();
+  toggleShowroomPlatform(true);
+  saveFormState();
+  clearError('has_showroom');
+});
+document.getElementById('showroom_no').addEventListener('change', function() {
+  updateShowroomOpts();
+  toggleShowroomPlatform(false);
+  saveFormState();
+  clearError('has_showroom');
+});
+
+/* ── Inline validation ───────────────────────────────────────────────────── */
+function showError(name, msg) {
+  const el = document.getElementById('e_' + name);
+  const fi = document.getElementById('f_' + name);
+  if (el) el.textContent = msg;
+  if (fi) { fi.classList.add('error'); fi.classList.remove('valid'); }
+}
+function clearError(name) {
+  const el = document.getElementById('e_' + name);
+  const fi = document.getElementById('f_' + name);
+  if (el) el.textContent = '';
+  if (fi) { fi.classList.remove('error'); }
+}
+function markValid(name) {
+  const el = document.getElementById('e_' + name);
+  const fi = document.getElementById('f_' + name);
+  if (el) el.textContent = '';
+  if (fi) { fi.classList.add('valid'); fi.classList.remove('error'); }
+}
+
+function validateField(name) {
+  const el = document.getElementById('f_' + name);
+  if (!el) return true;
+  const val = el.value.trim();
+
+  if (name === 'brand_name') {
+    if (!val) { showError(name, 'Brand name is required.'); return false; }
+  } else if (name === 'contact_name') {
+    if (!val) { showError(name, 'Your name is required.'); return false; }
+  } else if (name === 'email') {
+    if (!val || !EMAIL_RE.test(val)) { showError(name, 'Valid email address is required.'); return false; }
+  } else if (name === 'phone') {
+    if (!PHONE_RE.test(val)) { showError(name, 'Egyptian mobile required (e.g., 01XXXXXXXXX).'); return false; }
+  } else if (name === 'ig_handle') {
+    const normalised = val.replace(/^@/, '').toLowerCase();
+    if (!normalised || !IG_RE.test(normalised)) {
+      showError(name, 'Valid handle required — letters, numbers, . and _ only.'); return false;
+    }
+  } else if (name === 'website') {
+    if (!val) { showError(name, 'Website URL is required.'); return false; }
+    try {
+      let url = val;
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      new URL(url);
+    } catch { showError(name, 'Enter a valid URL (e.g., yourbrand.com).'); return false; }
+  } else if (name === 'revenue_range') {
+    if (!val) { showError(name, 'Please select your revenue range.'); return false; }
+  } else if (name === 'cs_handled_by') {
+    if (!val) { showError(name, 'Please select how you handle CS.'); return false; }
+  }
+
+  markValid(name);
+  return true;
+}
+
+/* Auto-strip @ from IG handle on input */
+document.getElementById('f_ig_handle').addEventListener('input', function() {
+  if (this.value.startsWith('@')) this.value = this.value.slice(1);
+});
+
+/* Blur validation + persistence */
+FIELDS.forEach(name => {
+  const el = document.getElementById('f_' + name);
+  if (!el) return;
+  el.addEventListener('blur', () => validateField(name));
+  el.addEventListener('input', saveFormState);
+});
+
+/* ── Form submit ─────────────────────────────────────────────────────────── */
+document.getElementById('qualForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  /* Validate all fields */
+  let allValid = true;
+  FIELDS.forEach(name => { if (!validateField(name)) allValid = false; });
+
+  /* Validate showroom radio */
+  const sr = document.querySelector('input[name="has_showroom"]:checked');
+  if (!sr) {
+    document.getElementById('e_has_showroom').textContent = 'Please select yes or no.';
+    document.getElementById('showroom_yes_lbl').classList.add('error-opt');
+    document.getElementById('showroom_no_lbl').classList.add('error-opt');
+    allValid = false;
+  }
+
+  /* Validate showroom platform if showroom=yes */
+  if (sr?.value === 'yes') {
+    const sp = document.getElementById('f_showroom_platform').value;
+    if (!sp) {
+      showError('showroom_platform', 'Please select your showroom platform.');
+      allValid = false;
+    }
+  }
+
+  if (!allValid) {
+    /* Scroll to first error */
+    const firstErr = document.querySelector('.error, .error-opt');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  /* Disable button + show loading */
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  btn.classList.add('loading');
+
+  const hideBanner = () => {
+    const b = document.getElementById('formErrorBanner');
+    b.textContent = '';
+    b.classList.remove('visible');
+  };
+  hideBanner();
+
+  const body = {
+    brand_name:        document.getElementById('f_brand_name').value.trim(),
+    contact_name:      document.getElementById('f_contact_name').value.trim(),
+    email:             document.getElementById('f_email').value.trim(),
+    phone:             document.getElementById('f_phone').value.trim(),
+    ig_handle:         document.getElementById('f_ig_handle').value.trim().replace(/^@/, '').toLowerCase(),
+    website:           document.getElementById('f_website').value.trim(),
+    revenue_range:     document.getElementById('f_revenue_range').value,
+    has_showroom:      sr.value === 'yes',
+    showroom_platform: sr.value === 'yes' ? (document.getElementById('f_showroom_platform').value || null) : null,
+    cs_handled_by:     document.getElementById('f_cs_handled_by').value,
+    source:            BOOKING_SOURCE,
+  };
+
+  try {
+    const resp = await fetch('/api/leads', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || !data.ok) {
+      /* Show server validation errors */
+      if (data.errors) {
+        Object.entries(data.errors).forEach(([k, v]) => showError(k, v));
+        const firstErr = document.querySelector('.error, .error-opt');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const b = document.getElementById('formErrorBanner');
+        b.textContent = data.error || 'Something went wrong. Please try again.';
+        b.classList.add('visible');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Continue to scheduling →';
+      btn.classList.remove('loading');
+      return;
+    }
+
+    /* Success — clear storage, show Calendly */
+    clearFormState();
+    showCalendly(data.calendly_url, body.contact_name, body.email);
+
+  } catch (err) {
+    const b = document.getElementById('formErrorBanner');
+    b.textContent = 'Network error. Please check your connection and try again.';
+    b.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Continue to scheduling →';
+    btn.classList.remove('loading');
+  }
+});
+
+/* ── Show Calendly widget ────────────────────────────────────────────────── */
+function showCalendly(url, name, email) {
+  /* Fade form out */
+  const fs = document.getElementById('formSection');
+  fs.classList.add('fading');
+
+  setTimeout(() => {
+    fs.style.display = 'none';
+
+    /* Build Calendly inline widget */
+    const cs      = document.getElementById('calendlySection');
+    const wrapper = document.getElementById('calendlyWidget');
+
+    /* Calendly inline embed div */
+    const embedDiv = document.createElement('div');
+    embedDiv.className = 'calendly-inline-widget';
+    embedDiv.setAttribute('data-url', 'https://calendly.com/youssefbassem-aucegypt/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=000000&text_color=ffffff&primary_color=6f6f6f');
+    embedDiv.style.cssText = 'min-width:320px;height:700px;';
+    wrapper.appendChild(embedDiv);
+
+    /* Load Calendly script */
+    const script = document.createElement('script');
+    script.src   = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    document.head.appendChild(script);
+
+    cs.classList.add('visible');
+
+    /* Scroll to Calendly */
+    setTimeout(() => {
+      cs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }, 400);
+}
+
+/* ── Init ────────────────────────────────────────────────────────────────── */
+restoreFormState();
+</script>
+
+</body>
+</html>

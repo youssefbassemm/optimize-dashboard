@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<!-- ONBOARDING_FLOW -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Set Up Your Workspace — Optimize</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ONBOARDING_FLOW — design system matches etrnll-dashboard.html exactly */
+    :root {
+      --bg:    #000000; --bg-1: #0a0a0a;
+      --surf:  #0a0a0a; --surf-hi: #141414;
+      --line:  #1f1f1f; --line-hi: #2a2a2a;
+      --t1:    #ffffff; --t2: #b8b8b8; --t3: #6b6b6b; --t4: #3a3a3a;
+      --gold:  #b8b8b8; --gold-dim: rgba(255,255,255,0.06);
+      --red:   #ef4444; --red-dim:  rgba(239,68,68,0.10);
+      --green: #4ade80; --grn-dim:  rgba(74,222,128,0.10);
+      --sans:  'Inter', -apple-system, sans-serif;
+      --serif: 'Playfair Display', Georgia, serif;
+      --r: 10px;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--t1);
+      font-family: var(--sans); font-size: 13px; -webkit-font-smoothing: antialiased; }
+
+    /* ── Layout ── */
+    .ob-shell { min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 48px 24px 80px; }
+
+    /* ── Progress bar ── */
+    .ob-progress { width: 100%; max-width: 480px; margin-bottom: 52px; }
+    .ob-progress-track { height: 2px; background: var(--line); border-radius: 1px; margin-bottom: 10px; }
+    .ob-progress-fill  { height: 100%; background: #ffffff; border-radius: 1px;
+      transition: width 400ms cubic-bezier(0.4,0,0.2,1); }
+    .ob-progress-label { font-size: 10px; color: var(--t3); letter-spacing: 0.06em; }
+
+    /* ── Step card ── */
+    .ob-step { width: 100%; max-width: 480px; display: none; }
+    .ob-step.active { display: block; }
+
+    .ob-step-num { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--t3); margin-bottom: 14px; }
+    .ob-step-title { font-family: var(--serif); font-size: 26px; font-weight: 400;
+      color: var(--t1); margin-bottom: 8px; line-height: 1.25; }
+    .ob-step-desc { font-size: 13px; color: var(--t3); margin-bottom: 32px;
+      line-height: 1.6; max-width: 400px; }
+
+    /* ── Card container ── */
+    .ob-card { background: var(--surf); border: 1px solid var(--line);
+      border-radius: var(--r); padding: 22px; margin-bottom: 16px; }
+
+    /* ── Form elements ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--t3); margin-bottom: 7px; }
+    input { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--line);
+      border-radius: 6px; padding: 10px 12px; font-family: var(--sans); font-size: 13px;
+      color: var(--t1); outline: none; transition: border-color 150ms; -webkit-appearance: none; }
+    input::placeholder { color: var(--t3); }
+    input:focus { border-color: #2a2a2a; }
+    .form-hint { font-size: 10px; color: var(--t3); margin-top: 5px; line-height: 1.5; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-primary { flex: 1; background: #ffffff; color: #000000; border: none;
+      border-radius: 6px; padding: 11px 16px; font-family: var(--sans); font-size: 13px;
+      font-weight: 500; cursor: pointer; transition: opacity 150ms; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-skip { background: transparent; border: 1px solid var(--line); color: var(--t3);
+      border-radius: 6px; padding: 11px 16px; font-family: var(--sans); font-size: 12px;
+      cursor: pointer; transition: border-color 150ms, color 150ms; }
+    .btn-skip:hover { border-color: var(--line-hi); color: var(--t2); }
+
+    /* ── Status states ── */
+    .ob-status { display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: var(--t3); padding: 10px 0; }
+    .ob-status-dot { width: 7px; height: 7px; border-radius: 50%;
+      background: var(--t3); flex-shrink: 0; transition: background 200ms; }
+    .ob-status.connecting .ob-status-dot { background: #fbbf24; animation: pulse 1s infinite; }
+    .ob-status.connected  .ob-status-dot { background: var(--green); }
+    .ob-status.connected  { color: var(--green); }
+    .ob-status.error      .ob-status-dot { background: var(--red); }
+    .ob-status.error      { color: var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── Error banner ── */
+    .ob-error { font-size: 12px; color: var(--red); background: var(--red-dim);
+      border: 1px solid rgba(239,68,68,0.12); border-radius: 6px; padding: 9px 12px;
+      margin-top: 12px; display: none; }
+    .ob-error.visible { display: block; }
+
+    /* ── Webhook instruction box ── */
+    .ob-webhook-box { background: var(--gold-dim); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; padding: 14px; margin-top: 14px; font-size: 11px;
+      color: var(--t2); line-height: 1.7; display: none; }
+    .ob-webhook-box.visible { display: block; }
+    .ob-webhook-box code { font-family: monospace; color: var(--gold); background: rgba(255,255,255,0.05);
+      padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+    .ob-webhook-box ol { margin-left: 16px; }
+
+    /* ── Step 7 sync progress ── */
+    .ob-sync-item { display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--t2); }
+    .ob-sync-item:last-child { border-bottom: none; }
+    .ob-sync-icon { font-size: 14px; width: 20px; text-align: center; }
+
+    /* ── Done step ── */
+    .ob-done-ring { width: 64px; height: 64px; border-radius: 50%;
+      background: var(--grn-dim); border: 1px solid rgba(74,222,128,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 24px; }
+
+    /* ── OAuth redirect helper text ── */
+    .ob-redirect-hint { font-size: 11px; color: var(--t3); text-align: center;
+      margin-top: 14px; line-height: 1.55; }
+  </style>
+</head>
+<body>
+<div class="ob-shell">
+
+  <!-- Progress bar -->
+  <div class="ob-progress">
+    <div class="ob-progress-track">
+      <div class="ob-progress-fill" id="ob-progress-fill" style="width:12%"></div>
+    </div>
+    <div class="ob-progress-label" id="ob-progress-label">Step 1 of 7</div>
+  </div>
+
+  <!-- ── STEP 1 — Welcome ── -->
+  <div class="ob-step active" id="step-1">
+    <div class="ob-step-num">Step 01</div>
+    <h1 class="ob-step-title" id="ob-welcome-title">Your workspace is ready.</h1>
+    <p class="ob-step-desc">Let's connect your tools so Optimize can pull live data from your store, showroom, courier, and campaigns.</p>
+    <p class="ob-step-desc" style="margin-bottom:0">Takes about 3 minutes. You can skip any step and connect later from Settings → Integrations.</p>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goStep(2)">Get Started →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2 — Shopify (OAuth) ── -->
+  <!-- ONBOARDING_FLOW — Shopify uses OAuth redirect, not credential form -->
+  <div class="ob-step" id="step-2">
+    <div class="ob-step-num">Step 02</div>
+    <h1 class="ob-step-title">Connect your online store</h1>
+    <p class="ob-step-desc">Optimize will pull orders, inventory, and revenue from Shopify every 6 hours and in real time via webhooks.</p>
+    <div class="ob-card">
+      <div class="form-group">
+        <label>Store URL</label>
+        <input id="ob-shopify-shop" type="text" placeholder="yourstore.myshopify.com"
+          onkeydown="if(event.key==='Enter')startShopifyOAuth()"/>
+        <div class="form-hint">Your .myshopify.com address — not your custom domain</div>
+      </div>
+      <div class="ob-redirect-hint">
+        You'll be redirected to Shopify to approve the connection. After approving, you'll return here automatically.
+      </div>
+    </div>
+    <div class="ob-error" id="err-2"></div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-2" onclick="startShopifyOAuth()">Connect with Shopify →</button>
+      <button class="btn-skip" onclick="goStep(3)">Skip</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3 — Locally EG ── -->
+  <div class="ob-step" id="step-3">
+    <div class="ob-step-num">Step 03</div>
+    <h1 class="ob-step-title">Connect your showroom</h1>
+    <p class="ob-step-desc">Optimize will pull showroom orders and inventory from Locally EG every 30 minutes.</p>
+    <div class="ob-card">
+      <div class="form-group">
+        <label>Locally EG Email</label>
+        <input id="ob-locally-email" type="email" placeholder="you@yourbrand.com"/>
+      </div>
+      <div class="form-group">
+        <label>Locally EG Password</label>
+        <input id="ob-locally-pw" type="password" placeholder="••••••••"/>
+        <div class="form-hint">Your login credentials for backend.locallyeg.com</div>
+      </div>
+      <div class="ob-status" id="status-locally"><div class="ob-status-dot"></div><span id="status-locally-txt">Not connected</span></div>
+    </div>
+    <div class="ob-error" id="err-3"></div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-3" onclick="connectLocally()">Connect Showroom</button>
+      <button class="btn-skip" onclick="goStep(4)">Skip</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4 — Shipping (ShipBlu or Bosta) ── -->
+  <!-- BOSTA_INTEGRATION: provider selector added; same form pattern as ShipBlu -->
+  <div class="ob-step" id="step-4">
+    <div class="ob-step-num">Step 04</div>
+    <h1 class="ob-step-title">Connect your courier</h1>
+    <p class="ob-step-desc">Optimize tracks every shipment from pickup to doorstep and flags delayed or failed deliveries automatically. Choose your courier below.</p>
+    <!-- Provider toggle -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button id="btn-provider-shipblu" onclick="selectProvider('shipblu')"
+        style="flex:1;padding:9px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:var(--t1);font-size:12px;cursor:pointer;font-family:var(--sans)">
+        ShipBlu
+      </button>
+      <button id="btn-provider-bosta" onclick="selectProvider('bosta')"
+        style="flex:1;padding:9px;border-radius:6px;border:1px solid rgba(255,255,255,0.10);background:transparent;color:var(--t3);font-size:12px;cursor:pointer;font-family:var(--sans)">
+        Bosta
+      </button>
+    </div>
+    <!-- ShipBlu fields -->
+    <div class="ob-card" id="shipping-fields-shipblu">
+      <div class="form-group">
+        <label>ShipBlu API Key</label>
+        <input id="ob-shipblu-key" type="password" placeholder="Paste your API key"/>
+        <div class="form-hint">Found at app.shipblu.com → Integrations → API Key tab</div>
+      </div>
+      <div class="ob-status" id="status-shipblu"><div class="ob-status-dot"></div><span id="status-shipblu-txt">Not connected</span></div>
+    </div>
+    <!-- Bosta fields (hidden by default) -->
+    <div class="ob-card" id="shipping-fields-bosta" style="display:none">
+      <div class="form-group">
+        <label>Bosta API Key</label>
+        <input id="ob-bosta-key" type="password" placeholder="Paste your Bosta API key"/>
+        <div class="form-hint">Found in your Bosta Business dashboard → Settings → API Key</div>
+      </div>
+      <div class="ob-status" id="status-bosta"><div class="ob-status-dot"></div><span id="status-bosta-txt">Not connected</span></div>
+    </div>
+    <div class="ob-webhook-box" id="shipblu-webhook-box"></div>
+    <div class="ob-error" id="err-4"></div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-4" onclick="connectShipping()">Connect ShipBlu</button>
+      <button class="btn-skip" onclick="goStep(5)">Skip</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 5 — Meta ── -->
+  <div class="ob-step" id="step-5">
+    <div class="ob-step-num">Step 05 — Optional</div>
+    <h1 class="ob-step-title">Connect Meta Ads</h1>
+    <p class="ob-step-desc">Pulls campaign spend, ROAS, CPA, and Instagram follower data. Requires a long-lived access token from your Meta Business account.</p>
+    <div class="ob-card">
+      <div class="form-group">
+        <label>Meta Access Token</label>
+        <input id="ob-meta-token" type="password" placeholder="Paste your access token"/>
+        <div class="form-hint">Generate at developers.facebook.com → Tools → Graph API Explorer. Request ads_read + instagram_basic permissions.</div>
+      </div>
+      <div class="form-group">
+        <label>Ad Account ID <span style="color:var(--t4);font-size:10px;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="ob-meta-account" type="text" placeholder="act_123456789"/>
+        <div class="form-hint">Found in Meta Ads Manager → Settings. Include the act_ prefix.</div>
+      </div>
+      <div class="form-group">
+        <label>Instagram User ID <span style="color:var(--t4);font-size:10px;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="ob-ig-user" type="text" placeholder="17841400000000000"/>
+        <div class="form-hint">Your numeric Instagram Business Account ID (not your @handle)</div>
+      </div>
+      <div class="ob-status" id="status-meta"><div class="ob-status-dot"></div><span id="status-meta-txt">Not connected</span></div>
+    </div>
+    <div class="ob-error" id="err-5"></div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-5" onclick="connectMeta()">Connect Meta</button>
+      <button class="btn-skip" onclick="goStep(6)">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 6 — First sync ── -->
+  <div class="ob-step" id="step-6">
+    <div class="ob-step-num">Step 06</div>
+    <h1 class="ob-step-title">Syncing your data</h1>
+    <p class="ob-step-desc">Optimize is pulling your first batch of data from connected platforms. This usually takes under a minute.</p>
+    <div class="ob-card" id="sync-progress-list">
+      <div class="ob-sync-item" id="sync-shopify"><span class="ob-sync-icon">⏳</span><span>Shopify orders &amp; inventory</span></div>
+      <div class="ob-sync-item" id="sync-locally"><span class="ob-sync-icon">⏳</span><span>Showroom orders</span></div>
+      <div class="ob-sync-item" id="sync-shipblu"><span class="ob-sync-icon">⏳</span><span>ShipBlu shipments</span></div>
+      <div class="ob-sync-item" id="sync-bosta"><span class="ob-sync-icon">⏳</span><span>Bosta shipments</span></div>
+      <div class="ob-sync-item" id="sync-meta"><span class="ob-sync-icon">⏳</span><span>Meta campaign data</span></div>
+    </div>
+    <div class="btn-row" style="margin-top:24px">
+      <button class="btn-primary" id="btn-6" onclick="finish()" disabled>Go to Dashboard</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 7 — Done ── -->
+  <div class="ob-step" id="step-7">
+    <div class="ob-done-ring">✓</div>
+    <div class="ob-step-num" style="text-align:center">All set</div>
+    <h1 class="ob-step-title" style="text-align:center">Your dashboard is ready</h1>
+    <p class="ob-step-desc" style="text-align:center;max-width:100%">Data is syncing in the background. Connect additional platforms anytime from Settings → Integrations.</p>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="finish()">Open Dashboard →</button>
+    </div>
+  </div>
+
+</div><!-- /ob-shell -->
+
+<script>
+// ONBOARDING_FLOW
+(function () {
+  // ── Auth check ────────────────────────────────────────────────────────────
+  // FRONTEND_BOOT — validate token and load brand identity from /api/me
+  const token = localStorage.getItem('__opt_token');
+  if (!token) { window.location.href = '/signin'; return; }
+
+  window._OB_TOKEN = token;
+  window._OB_BRAND = '';       // set below from /api/me
+  window._OB_STEP  = 1;
+  const TOTAL_STEPS = 7;
+  const connectedPlatforms = new Set();
+  let _activeShippingProvider = 'shipblu';  // BOSTA_INTEGRATION: tracks selected provider
+
+  // Check if Shopify was just connected via OAuth callback
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('shopify') === 'connected') {
+    connectedPlatforms.add('shopify');
+    // Clean URL
+    history.replaceState({}, '', window.location.pathname);
+  }
+
+  // FRONTEND_BOOT — load identity from /api/me, skip onboarding if already done
+  fetch('/api/me', {
+    headers: { 'Authorization': 'Bearer ' + token },
+  }).then(r => r.json()).then(d => {
+    if (!d.ok || !d.brand_id) {
+      window.location.href = '/signin';
+      return;
+    }
+
+    // REMOVE_SEED_HARDCODING — brand_id always comes from /api/me
+    window._OB_BRAND = d.brand_id;
+    localStorage.setItem('__opt_brand_id',   d.brand_id);
+    localStorage.setItem('__opt_brand_name', d.brand_name || d.brand_id);
+
+    // ONBOARDING_FLOW — if already onboarded, go straight to dashboard
+    if (d.onboarded) {
+      window.location.href = '/';
+      return;
+    }
+
+    // Personalize welcome heading with brand name
+    const titleEl = document.getElementById('ob-welcome-title');
+    if (titleEl) titleEl.textContent = 'Welcome, ' + (d.brand_name || d.brand_id) + '.';
+    document.title = 'Set up ' + (d.brand_name || d.brand_id) + ' — Optimize';
+
+    // If Shopify was already connected before arriving (e.g. mid-onboarding refresh)
+    if (d.integrations_connected && d.integrations_connected.includes('shopify')) {
+      connectedPlatforms.add('shopify');
+    }
+  }).catch(() => {
+    // Network error — use cached brand_id or redirect
+    const cachedBrand = localStorage.getItem('__opt_brand_id');
+    if (cachedBrand) {
+      window._OB_BRAND = cachedBrand;
+    } else {
+      window.location.href = '/signin';
+    }
+  });
+
+  // ── Progress ──────────────────────────────────────────────────────────────
+  // Step index → backend onboarding_step name (for persistence)
+  const STEP_NAMES = { 1:'welcome', 2:'shopify', 3:'locally', 4:'shipping', 5:'meta', 6:'done', 7:'done' };
+
+  window.goStep = function (n) {
+    document.getElementById('step-' + window._OB_STEP)?.classList.remove('active');
+    window._OB_STEP = n;
+    document.getElementById('step-' + n)?.classList.add('active');
+    const pct = Math.round((n / TOTAL_STEPS) * 100);
+    document.getElementById('ob-progress-fill').style.width = pct + '%';
+    document.getElementById('ob-progress-label').textContent = 'Step ' + n + ' of ' + TOTAL_STEPS;
+    if (n === 6) startSync();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ONBOARDING_FLOW — persist step to backend (non-blocking, non-fatal)
+    if (window._OB_BRAND && STEP_NAMES[n]) {
+      fetch('/api/' + window._OB_BRAND + '/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + window._OB_TOKEN },
+        body: JSON.stringify({ action: 'advance', step: STEP_NAMES[n] }),
+      }).catch(() => {});
+    }
+  };
+
+  // ── Shipping provider selector (BOSTA_INTEGRATION) ────────────────────────
+  window.selectProvider = function (provider) {
+    _activeShippingProvider = provider;
+    const isShipBlu = provider === 'shipblu';
+    // Toggle field visibility
+    document.getElementById('shipping-fields-shipblu').style.display = isShipBlu ? '' : 'none';
+    document.getElementById('shipping-fields-bosta').style.display   = isShipBlu ? 'none' : '';
+    document.getElementById('shipblu-webhook-box').style.display     = 'none';
+    // Update button styles
+    const btnShipBlu = document.getElementById('btn-provider-shipblu');
+    const btnBosta   = document.getElementById('btn-provider-bosta');
+    const active   = 'border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:var(--t1)';
+    const inactive = 'border:1px solid rgba(255,255,255,0.10);background:transparent;color:var(--t3)';
+    btnShipBlu.style.cssText = (btnShipBlu.style.cssText || '') + ';' + (isShipBlu ? active : inactive);
+    btnBosta.style.cssText   = (btnBosta.style.cssText   || '') + ';' + (!isShipBlu ? active : inactive);
+    // Update connect button label
+    document.getElementById('btn-4').textContent = isShipBlu ? 'Connect ShipBlu' : 'Connect Bosta';
+    // Clear errors
+    document.getElementById('err-4')?.classList.remove('visible');
+  };
+
+  // ── API helper ────────────────────────────────────────────────────────────
+  // INTEGRATION_BRAND_SCOPE — all API calls use brand_id from /api/me, never hardcoded
+  async function apiPost(path, body) {
+    const res = await fetch(path, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + window._OB_TOKEN,
+      },
+      body: JSON.stringify(body),
+    });
+    return res.json().then(d => ({ ok: res.ok && d.ok !== false, data: d }));
+  }
+
+  function setStatus(platform, state, msg) {
+    const el  = document.getElementById('status-' + platform);
+    const txt = document.getElementById('status-' + platform + '-txt');
+    if (!el || !txt) return;
+    el.className = 'ob-status ' + state;
+    txt.textContent = msg;
+  }
+
+  function showErr(stepN, msg) {
+    const el = document.getElementById('err-' + stepN);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function hideErr(stepN) {
+    document.getElementById('err-' + stepN)?.classList.remove('visible');
+  }
+
+  function setBtnLoading(btnId, loading, defaultText) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled    = loading;
+    btn.textContent = loading ? 'Connecting…' : defaultText;
+  }
+
+  // ── Step 2 — Shopify (OAuth redirect) ────────────────────────────────────
+  // ONBOARDING_FLOW — Shopify uses OAuth, not credential form
+  window.startShopifyOAuth = function () {
+    hideErr(2);
+    const input = document.getElementById('ob-shopify-shop');
+    let shop = (input?.value || '').trim().replace(/^https?:\/\//i, '').replace(/\/$/, '').toLowerCase();
+
+    if (shop && !shop.includes('.')) {
+      shop = shop + '.myshopify.com';
+    }
+
+    if (!shop || !shop.endsWith('.myshopify.com')) {
+      showErr(2, 'Please enter a valid Shopify store URL — e.g. yourstore.myshopify.com');
+      return;
+    }
+
+    if (!window._OB_BRAND) {
+      showErr(2, 'Brand ID not loaded yet — please wait a moment and try again');
+      return;
+    }
+
+    const btn = document.getElementById('btn-2');
+    if (btn) { btn.disabled = true; btn.textContent = 'Redirecting to Shopify…'; }
+
+    // Redirect to OAuth start — Shopify will redirect back to /?shopify=connected
+    // After OAuth, the brand returns to the dashboard (not back to onboarding directly)
+    // so we mark onboarding complete first, then let them proceed.
+    // The dashboard's checkShopifyOAuthResult() will handle the success toast.
+    const startUrl = '/auth/shopify/start?shop=' + encodeURIComponent(shop) +
+                     '&brand_id=' + encodeURIComponent(window._OB_BRAND) +
+                     '&return_to=onboarding';
+    window.location.href = startUrl;
+  };
+
+  // ── Step 3 — Locally EG ───────────────────────────────────────────────────
+  window.connectLocally = async function () {
+    hideErr(3);
+    const email    = document.getElementById('ob-locally-email').value.trim();
+    const password = document.getElementById('ob-locally-pw').value;
+    if (!email || !password) { showErr(3, 'Email and password are required.'); return; }
+    if (!window._OB_BRAND)   { showErr(3, 'Brand not loaded — please wait and try again.'); return; }
+
+    setStatus('locally', 'connecting', 'Verifying credentials…');
+    setBtnLoading('btn-3', true, 'Connect Showroom');
+    try {
+      const { ok, data } = await apiPost('/api/' + window._OB_BRAND + '/integrations/locally', {
+        credentials: { email, password },
+      });
+      if (ok) {
+        setStatus('locally', 'connected', 'Connected ✓');
+        connectedPlatforms.add('locally');
+        setTimeout(() => goStep(4), 800);
+      } else {
+        setStatus('locally', 'error', 'Error');
+        showErr(3, data.error || 'Connection failed. Check your Locally EG credentials.');
+      }
+    } catch (_) {
+      setStatus('locally', 'error', 'Error');
+      showErr(3, 'Cannot reach server.');
+    } finally {
+      setBtnLoading('btn-3', false, 'Connect Showroom');
+    }
+  };
+
+  // ── Step 4 — Shipping (ShipBlu or Bosta) ──────────────────────────────────
+  // BOSTA_INTEGRATION: unified handler — delegates to per-provider logic
+  window.connectShipping = async function () {
+    if (_activeShippingProvider === 'bosta') {
+      await _connectBosta();
+    } else {
+      await _connectShipBlu();
+    }
+  };
+
+  async function _connectShipBlu() {
+    hideErr(4);
+    const api_key = document.getElementById('ob-shipblu-key').value.trim();
+    if (!api_key)          { showErr(4, 'API key is required.'); return; }
+    if (!window._OB_BRAND) { showErr(4, 'Brand not loaded — please wait and try again.'); return; }
+
+    setStatus('shipblu', 'connecting', 'Validating API key…');
+    setBtnLoading('btn-4', true, 'Connect ShipBlu');
+    try {
+      const { ok, data } = await apiPost('/api/' + window._OB_BRAND + '/integrations/shipblu', {
+        credentials: { api_key },
+      });
+      if (ok) {
+        setStatus('shipblu', 'connected', 'Connected ✓');
+        connectedPlatforms.add('shipblu');
+        const wi = data.webhook_instructions;
+        if (wi) {
+          const box = document.getElementById('shipblu-webhook-box');
+          box.innerHTML = '<strong style="color:var(--gold);font-size:11px">Webhook setup (optional, recommended)</strong><br><br>' +
+            'Adding a webhook lets Optimize receive delivery updates in real time instead of polling every 30 minutes.<br><br>' +
+            '<ol>' + wi.steps.map(s => '<li>' + s + '</li>').join('') + '</ol>';
+          box.classList.add('visible');
+        }
+        setTimeout(() => goStep(5), 1000);
+      } else {
+        setStatus('shipblu', 'error', 'Error');
+        showErr(4, data.error || 'Connection failed. Check your ShipBlu API key.');
+      }
+    } catch (_) {
+      setStatus('shipblu', 'error', 'Error');
+      showErr(4, 'Cannot reach server.');
+    } finally {
+      setBtnLoading('btn-4', false, 'Connect ShipBlu');
+    }
+  }
+
+  // BOSTA_INTEGRATION: Bosta connect — same pattern as ShipBlu
+  async function _connectBosta() {
+    hideErr(4);
+    const api_key = document.getElementById('ob-bosta-key').value.trim();
+    if (!api_key)          { showErr(4, 'API key is required.'); return; }
+    if (!window._OB_BRAND) { showErr(4, 'Brand not loaded — please wait and try again.'); return; }
+
+    setStatus('bosta', 'connecting', 'Validating API key…');
+    setBtnLoading('btn-4', true, 'Connect Bosta');
+    try {
+      const { ok, data } = await apiPost('/api/' + window._OB_BRAND + '/integrations/bosta', {
+        credentials: { api_key },
+      });
+      if (ok) {
+        setStatus('bosta', 'connected', 'Connected ✓');
+        connectedPlatforms.add('bosta');
+        setTimeout(() => goStep(5), 800);
+      } else {
+        setStatus('bosta', 'error', 'Error');
+        showErr(4, data.error || 'Connection failed. Check your Bosta API key.');
+      }
+    } catch (_) {
+      setStatus('bosta', 'error', 'Error');
+      showErr(4, 'Cannot reach server.');
+    } finally {
+      setBtnLoading('btn-4', false, 'Connect Bosta');
+    }
+  }
+
+  // ── Step 5 — Meta ─────────────────────────────────────────────────────────
+  window.connectMeta = async function () {
+    hideErr(5);
+    const access_token  = document.getElementById('ob-meta-token').value.trim();
+    const ad_account_id = document.getElementById('ob-meta-account').value.trim();
+    const ig_user_id    = document.getElementById('ob-ig-user').value.trim();
+    if (!access_token)   { showErr(5, 'Access token is required.'); return; }
+    if (!window._OB_BRAND) { showErr(5, 'Brand not loaded — please wait and try again.'); return; }
+
+    setStatus('meta', 'connecting', 'Connecting…');
+    setBtnLoading('btn-5', true, 'Connect Meta');
+    try {
+      const creds = { access_token };
+      if (ad_account_id) creds.ad_account_id = ad_account_id;
+      if (ig_user_id)    creds.ig_user_id    = ig_user_id;
+
+      const { ok, data } = await apiPost('/api/' + window._OB_BRAND + '/integrations/meta', {
+        credentials: creds,
+      });
+      if (ok) {
+        setStatus('meta', 'connected', 'Connected ✓');
+        connectedPlatforms.add('meta');
+        setTimeout(() => goStep(6), 800);
+      } else {
+        setStatus('meta', 'error', 'Error');
+        showErr(5, data.error || 'Connection failed. Check your access token.');
+      }
+    } catch (_) {
+      setStatus('meta', 'error', 'Error');
+      showErr(5, 'Cannot reach server.');
+    } finally {
+      setBtnLoading('btn-5', false, 'Connect Meta');
+    }
+  };
+
+  // ── Step 6 — Sync progress ────────────────────────────────────────────────
+  const SYNC_ICONS = { pending: '⏳', running: '🔄', done: '✓', skip: '—' };
+
+  function setSyncItem(platform, state) {
+    const el = document.getElementById('sync-' + platform);
+    if (!el) return;
+    const icon = el.querySelector('.ob-sync-icon');
+    if (icon) icon.textContent = SYNC_ICONS[state] || '⏳';
+    if (state === 'done') el.style.opacity = '0.5';
+    if (state === 'skip') el.style.opacity = '0.3';
+  }
+
+  async function startSync() {
+    const platforms = ['shopify', 'locally', 'shipblu', 'bosta', 'meta'];
+
+    for (const p of platforms) {
+      if (!connectedPlatforms.has(p)) {
+        setSyncItem(p, 'skip');
+        continue;
+      }
+      setSyncItem(p, 'running');
+      try {
+        let url;
+        if (p === 'meta')    url = '/api/' + window._OB_BRAND + '/campaigns/sync';
+        else if (p === 'locally') url = '/api/' + window._OB_BRAND + '/locally/sync';
+        else { setSyncItem(p, 'done'); continue; }  // Shopify/ShipBlu already synced on connect
+
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + window._OB_TOKEN },
+        });
+        setSyncItem(p, 'done');
+      } catch (_) {
+        setSyncItem(p, 'done'); // non-fatal — background sync will retry
+      }
+    }
+
+    setTimeout(() => {
+      document.getElementById('btn-6').disabled = false;
+    }, 2000);
+  }
+
+  // ── Finish — mark onboarded, go to dashboard ──────────────────────────────
+  // ONBOARDING_FLOW — marks brand as onboarded via API before redirecting
+  window.finish = async function () {
+    // Mark brand as onboarded in DB so checkAuth won't redirect back here
+    try {
+      await fetch('/api/auth/complete-onboarding', {
+        method:  'POST',
+        headers: { 'Authorization': 'Bearer ' + window._OB_TOKEN },
+      });
+    } catch (_) {
+      // Non-fatal — worst case user sees onboarding again, can click skip
+    }
+    window.location.href = '/';
+  };
+
+})();
+</script>
+</body>
+</html>
