@@ -412,6 +412,41 @@ function start() {
   // 2. Run migrations (idempotent)
   runMigrations();
 
+  // ONE-TIME: purge bunzyeg@gmail.com so they can re-register as food_brand
+  // Safe to remove once the account has been successfully deleted.
+  try {
+    const { db: rawDb } = require('./db/db');
+    const bunzy = rawDb.prepare("SELECT id FROM users WHERE LOWER(email) = 'bunzyeg@gmail.com'").get();
+    if (bunzy) {
+      console.log('[startup] purging bunzyeg@gmail.com (id=' + bunzy.id + ')…');
+      const brands = rawDb.prepare('SELECT brand_id FROM user_brands WHERE user_id = ?').all(bunzy.id);
+      for (const { brand_id } of brands) {
+        const TABLES = [
+          'fb_calendar_notes','fb_inventory_check','fb_cash_drawer_check','fb_bank_transfers',
+          'fb_daily_expenses','fb_daily_revenue','fb_recurring_expenses','fb_setup_expenses','fb_settings',
+          'ig_cache','campaign_cache','inventory_cache','order_items','orders_cache',
+          'sync_logs','webhook_queue','events','tier_changes','impersonation_sessions',
+          'cx_settings','cx_flows','cx_messages','integrations','user_brands',
+        ];
+        for (const t of TABLES) {
+          try { rawDb.prepare('DELETE FROM ' + t + ' WHERE brand_id = ?').run(brand_id); } catch (_) {}
+        }
+        try { rawDb.prepare('DELETE FROM brands WHERE id = ?').run(brand_id); } catch (e) {
+          console.warn('[startup] brand delete failed:', brand_id, e.message);
+        }
+      }
+      try { rawDb.prepare('DELETE FROM sessions WHERE user_id = ?').run(bunzy.id); } catch (_) {}
+      try { rawDb.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(bunzy.id); } catch (_) {}
+      try { rawDb.prepare('DELETE FROM user_brands WHERE user_id = ?').run(bunzy.id); } catch (_) {}
+      rawDb.prepare('DELETE FROM users WHERE id = ?').run(bunzy.id);
+      console.log('[startup] bunzyeg@gmail.com purged — free to re-register');
+    } else {
+      console.log('[startup] bunzyeg@gmail.com not found — already purged or never existed');
+    }
+  } catch (err) {
+    console.error('[startup] bunzy purge ERROR:', err.message);
+  }
+
   // 3. Seed default brand from environment (development only).
   // REMOVE_SEED_HARDCODING — never auto-seed in production. Brands are created
   // via POST /api/auth/signup in the normal user flow.
