@@ -2708,7 +2708,7 @@
     _acctPaidExp     = paidExpenses;
     _acctBalBase     = manualBal ? s.accountBalance : null;
     var outstanding  = manualBal
-      ? s.accountBalance
+      ? s.accountBalance - paidExpenses
       : (s.revenue.totalRevenue - banked - paidExpenses);
     if (outEl) {
       outEl.textContent = fmtEGP(outstanding);
@@ -2887,12 +2887,14 @@
         var num = parseFloat(input.value);
         if (isNaN(num) || num < 0) { cancel(); return; }
         _acctBalBase = num;
-        valEl.textContent = fmtEGP(num);
+        valEl.textContent = fmtEGP(num - _acctPaidExp);
         valEl.className   = 'card-value';
         if (subEl) subEl.textContent = 'manually set · click to update';
         api(base() + '/settings', {
           method: 'PUT',
           body: JSON.stringify({ key: 'account_balance', value: num }),
+        }).then(function(r) {
+          if (!r || !r.ok) toast('Balance save failed — please try again', 'err');
         });
       }
 
