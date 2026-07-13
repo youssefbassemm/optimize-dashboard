@@ -2703,18 +2703,13 @@
     set('val-banked', fmtEGP(banked));
     var outEl = $('val-outstanding');
     var subEl = $('sub-outstanding');
-    var manualBal    = (s.accountBalance !== null && s.accountBalance !== undefined);
-    var paidExpenses = (s.expenses && s.expenses.totalDailyExpenses) || 0;
-    _acctPaidExp     = paidExpenses;
-    _acctBalBase     = manualBal ? s.accountBalance : null;
-    var outstanding  = manualBal
-      ? s.accountBalance - paidExpenses
-      : (s.revenue.totalRevenue - banked - paidExpenses);
+    var manualBal = (s.accountBalance !== null && s.accountBalance !== undefined);
+    _acctBalBase  = manualBal ? s.accountBalance : null;
     if (outEl) {
-      outEl.textContent = fmtEGP(outstanding);
-      outEl.className = 'card-value' + (outstanding > 10000 ? ' neg' : '');
+      outEl.textContent = manualBal ? fmtEGP(s.accountBalance) : '—';
+      outEl.className = 'card-value';
     }
-    if (subEl) subEl.textContent = manualBal ? 'manually set · click to update' : 'earned, not yet transferred';
+    if (subEl) subEl.textContent = manualBal ? 'click to update' : 'click to set';
     if (drawer) {
       var actual = drawer.actual_counted_cash, expected = drawer.expected_closing_cash;
       var drawerEl = $('val-drawer');
@@ -2862,9 +2857,7 @@
     function enterEdit() {
       if (valEl.querySelector('.acct-bal-input')) return; // already editing
       // Pre-fill with the stored BASE (before expense deduction), not the displayed net
-      var editBase = (_acctBalBase !== null && _acctBalBase !== undefined)
-        ? _acctBalBase
-        : (parseFloat(valEl.textContent.replace(/[^0-9.]/g, '')) || 0) + _acctPaidExp;
+      var editBase = (_acctBalBase !== null && _acctBalBase !== undefined) ? _acctBalBase : '';
       var prevText  = valEl.textContent;
       var prevClass = valEl.className;
 
@@ -2887,9 +2880,9 @@
         var num = parseFloat(input.value);
         if (isNaN(num) || num < 0) { cancel(); return; }
         _acctBalBase = num;
-        valEl.textContent = fmtEGP(num - _acctPaidExp);
+        valEl.textContent = fmtEGP(num);
         valEl.className   = 'card-value';
-        if (subEl) subEl.textContent = 'manually set · click to update';
+        if (subEl) subEl.textContent = 'click to update';
         api(base() + '/settings', {
           method: 'PUT',
           body: JSON.stringify({ key: 'account_balance', value: num }),
