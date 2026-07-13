@@ -87,19 +87,5 @@ router.get('/', requireAuth, (req, res) => {
   }
 });
 
-// TEMP: self-service business-type switcher for bunzyeg@gmail.com
-// Requires a valid user session — no admin needed.
-// Remove after the food-brand account is set up.
-router.post('/set-food-brand', requireAuth, (req, res) => {
-  try {
-    const brandId = req.user.brandId;
-    if (!brandId) return res.status(400).json({ ok: false, error: 'No brand on session' });
-    db.setBrandBusinessType(brandId, 'food_brand');
-    console.log('[me] set food_brand for brand=' + brandId + ' user=' + req.user.email);
-    return res.json({ ok: true, brand_id: brandId, business_type: 'food_brand' });
-  } catch (err) {
-    return res.status(500).json({ ok: false, error: err.message });
-  }
-});
 
 module.exports = router;

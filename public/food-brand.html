@@ -11,24 +11,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ground:   #0A0908;
-      --surface:  #111009;
-      --lift:     #1A1815;
-      --rule:     rgba(230,210,180,0.07);
-      --rule-hi:  rgba(230,210,180,0.15);
-      --t1:       #EDE5D6;
-      --t2:       #7A7268;
-      --t3:       #42403C;
-      --cash:     #C8A97A;
+      --ground:   #000000;
+      --surface:  #0F0202;
+      --lift:     #1A0404;
+      --rule:     rgba(220,40,40,0.10);
+      --rule-hi:  rgba(220,40,40,0.22);
+      --t1:       #F2E8E8;
+      --t2:       #7A6060;
+      --t3:       #3E2A2A;
+      --cash:     #CC2020;
       --visa:     #6E97B8;
       --talabat:  #A47455;
       --pos:      #5A9968;
-      --neg:      #9B5B5B;
+      --neg:      #CC2020;
+      --accent:   #CC2020;
       --sans:     'DM Sans', sans-serif;
       --head:     'Syne', sans-serif;
       --sb-w:     220px;
       --card-radius: 8px;
-      --card-shadow: 0 1px 0 rgba(255,255,255,0.03), 0 4px 24px rgba(0,0,0,0.35);
+      --card-shadow: 0 1px 0 rgba(220,40,40,0.06), 0 4px 24px rgba(0,0,0,0.55);
     }
 
     html, body {
@@ -38,6 +39,7 @@
       font-family: var(--sans);
       font-weight: 300;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ── Shell ──────────────────────────────────────────── */
@@ -52,7 +54,7 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      background: linear-gradient(180deg, #0D0B09 0%, #0A0908 100%);
+      background: linear-gradient(180deg, #0A0101 0%, #000000 100%);
       border-right: 1px solid var(--rule);
       display: flex;
       flex-direction: column;
@@ -66,7 +68,7 @@
       font-weight: 700;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: rgba(200,169,122,0.35);
+      color: rgba(204,32,32,0.35);
       margin-bottom: 28px;
       padding-left: 10px;
     }
@@ -124,7 +126,7 @@
     .sb-item:hover { background: rgba(255,255,255,0.03); color: var(--t2); }
 
     .sb-item.active {
-      background: rgba(200,169,122,0.09);
+      background: rgba(204,32,32,0.09);
       color: var(--t1);
       font-weight: 500;
     }
@@ -137,7 +139,7 @@
       background: var(--cash);
       border-radius: 2px;
       flex-shrink: 0;
-      box-shadow: 0 0 8px rgba(200,169,122,0.4);
+      box-shadow: 0 0 8px rgba(204,32,32,0.4);
     }
 
     .sb-item:not(.active)::before {
@@ -175,7 +177,7 @@
     .main {
       overflow-y: auto;
       padding: 40px 44px 64px;
-      background: radial-gradient(ellipse 80% 40% at 60% -10%, rgba(200,169,122,0.04) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 40% at 60% -10%, rgba(204,32,32,0.04) 0%, transparent 70%);
     }
 
     /* ── Tab views ─────────────────────────────────────── */
@@ -207,7 +209,7 @@
 
     .season-track {
       height: 2px;
-      background: rgba(230,210,180,0.06);
+      background: rgba(220,40,40,0.06);
       border-radius: 2px;
       margin-bottom: 24px;
       overflow: hidden;
@@ -215,7 +217,7 @@
 
     .season-fill {
       height: 100%;
-      background: linear-gradient(90deg, rgba(200,169,122,0.4) 0%, rgba(200,169,122,0.7) 100%);
+      background: linear-gradient(90deg, rgba(204,32,32,0.4) 0%, rgba(204,32,32,0.7) 100%);
       border-radius: 2px;
       transition: width 800ms cubic-bezier(0.4,0,0.2,1);
     }
@@ -240,7 +242,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      border-top: 1px solid rgba(230,210,180,0.1);
+      border-top: 1px solid rgba(220,40,40,0.1);
     }
 
     .card-label {
@@ -273,14 +275,14 @@
 
     .recovery-track {
       height: 2px;
-      background: rgba(230,210,180,0.06);
+      background: rgba(220,40,40,0.06);
       border-radius: 2px;
       margin-top: 2px;
       overflow: hidden;
     }
     .recovery-fill {
       height: 100%;
-      background: linear-gradient(90deg, rgba(200,169,122,0.5), rgba(200,169,122,0.8));
+      background: linear-gradient(90deg, rgba(204,32,32,0.5), rgba(204,32,32,0.8));
       border-radius: 2px;
       transition: width 800ms cubic-bezier(0.4,0,0.2,1);
     }
@@ -340,6 +342,29 @@
       height: 100%;
       display: block;
     }
+
+    /* ── Bar chart tooltip ─────────────────────────────── */
+    .bar-tooltip {
+      position: absolute;
+      background: rgba(20,3,3,0.97);
+      border: 1px solid var(--rule-hi);
+      border-radius: 8px;
+      padding: 10px 14px;
+      pointer-events: none;
+      z-index: 20;
+      min-width: 158px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.65);
+      opacity: 1;
+      transition: opacity 100ms;
+    }
+    .bar-tooltip.hidden { opacity: 0; }
+    .bt-date { font-size: 9px; letter-spacing: .13em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
+    .bt-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--t2); margin-bottom: 4px; }
+    .bt-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .bt-val { margin-left: auto; font-family: var(--head); color: var(--t1); font-size: 12.5px; letter-spacing: -0.02em; }
+    .bt-sep { border: none; border-top: 1px solid var(--rule); margin: 6px 0 5px; }
+    .bt-row.total .bt-val { font-size: 14px; }
+    .bt-row.total { color: var(--t1); }
 
     .chart-empty-msg {
       position: absolute;
@@ -432,10 +457,37 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      border-top: 1px solid rgba(230,210,180,0.08);
+      border-top: 1px solid rgba(220,40,40,0.08);
     }
 
     .balance-card .card-value { font-size: 26px; }
+
+    /* Editable account balance card */
+    .acct-bal-card .card-label { display: flex; align-items: center; gap: 5px; }
+    .acct-bal-edit-icon {
+      font-size: 10px;
+      opacity: 0;
+      transition: opacity 120ms;
+      cursor: pointer;
+      color: var(--t2);
+    }
+    .acct-bal-card:hover .acct-bal-edit-icon { opacity: 1; }
+    #val-outstanding { cursor: pointer; transition: opacity 140ms; }
+    #val-outstanding:hover { opacity: .75; }
+    .acct-bal-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid var(--cash);
+      color: inherit;
+      font-family: var(--head);
+      font-size: 26px;
+      font-weight: 700;
+      width: 100%;
+      outline: none;
+      padding: 0 0 2px;
+      caret-color: var(--cash);
+    }
+    .acct-bal-saving { opacity: .5; pointer-events: none; }
 
     .variance-pill {
       display: inline-flex;
@@ -641,8 +693,8 @@
 
     /* Buttons */
     .btn-primary {
-      background: rgba(200,169,122,0.12);
-      border: 1px solid rgba(200,169,122,0.2);
+      background: rgba(204,32,32,0.12);
+      border: 1px solid rgba(204,32,32,0.2);
       border-radius: 4px;
       color: var(--cash);
       font-family: var(--sans);
@@ -653,7 +705,7 @@
       transition: background 150ms;
       white-space: nowrap;
     }
-    .btn-primary:hover { background: rgba(200,169,122,0.18); }
+    .btn-primary:hover { background: rgba(204,32,32,0.18); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .btn-danger {
@@ -732,9 +784,9 @@
 
     /* Recurring due banner */
     .due-banner {
-      border: 1px solid rgba(200,169,122,0.2);
+      border: 1px solid rgba(204,32,32,0.2);
       border-radius: 5px;
-      background: rgba(200,169,122,0.05);
+      background: rgba(204,32,32,0.05);
       padding: 14px 18px;
       display: flex;
       flex-direction: column;
@@ -830,7 +882,7 @@
 
     .cal-day:hover { background: var(--lift); border-color: var(--rule); }
     .cal-day.other-month { opacity: 0.25; }
-    .cal-day.today { border-color: rgba(200,169,122,0.3); background: rgba(200,169,122,0.05); }
+    .cal-day.today { border-color: rgba(204,32,32,0.3); background: rgba(204,32,32,0.05); }
     .cal-day.has-note::after {
       content: '';
       position: absolute;
@@ -910,7 +962,7 @@
       transition: background 150ms;
     }
 
-    .toggle input:checked + .toggle-track { background: rgba(200,169,122,0.25); border-color: rgba(200,169,122,0.4); }
+    .toggle input:checked + .toggle-track { background: rgba(204,32,32,0.25); border-color: rgba(204,32,32,0.4); }
 
     .toggle-thumb {
       position: absolute;
@@ -925,71 +977,196 @@
 
     .toggle input:checked ~ .toggle-thumb { transform: translateX(14px); background: var(--cash); }
 
-    /* ── Reports grid ──────────────────────────────────── */
-    .reports-grid {
+    /* ── Reports ──────────────────────────────────────── */
+    .rpt-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .rpt-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+
+    .rpt-card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .rpt-card-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05);
+      border-radius: 7px;
+    }
+
+    .rpt-card-title {
+      font-family: var(--head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 3px;
+      letter-spacing: -0.01em;
+    }
+
+    .rpt-card-desc { font-size: 11px; color: rgba(255,255,255,0.28); line-height: 1.55; }
+
+    .rpt-range-row {
+      margin-bottom: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .rpt-range-row::-webkit-scrollbar { display: none; }
+
+    .rpt-range-pills { display: flex; gap: 4px; width: max-content; }
+
+    .rpt-range-pill {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      color: rgba(255,255,255,0.32);
+      font-family: var(--sans);
+      font-size: 10.5px;
+      padding: 4px 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 110ms;
+      min-height: 26px;
+    }
+    .rpt-range-pill:hover {
+      border-color: rgba(255,255,255,0.20);
+      color: rgba(255,255,255,0.60);
+    }
+    .rpt-range-pill.active {
+      background: rgba(204,32,32,0.18);
+      border-color: rgba(204,32,32,0.45);
+      color: #E07070;
+      font-weight: 600;
+    }
+
+    .rpt-custom-dates {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .rpt-date-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 5px;
+      color: var(--t1);
+      font-family: var(--sans);
+      font-size: 11px;
+      padding: 5px 8px;
+      flex: 1;
+      min-width: 120px;
+      max-width: 155px;
+    }
+    .rpt-date-input:focus { outline: none; border-color: rgba(204,32,32,0.5); }
+    .rpt-date-input::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+
+    .rpt-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .rpt-pdf-btn, .rpt-csv-btn {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 0 20px;
+      height: 38px;
+      min-height: 38px;
+      transition: all 140ms;
+      white-space: nowrap;
+      flex: 1;
+      min-width: 120px;
+      max-width: 200px;
+      letter-spacing: 0.01em;
+    }
+    .rpt-pdf-btn {
+      background: var(--cash);
+      border: none;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(204,32,32,0.22);
+    }
+    .rpt-pdf-btn:hover { opacity: .87; box-shadow: 0 3px 14px rgba(204,32,32,0.32); }
+    .rpt-pdf-btn:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
+
+    .rpt-csv-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: rgba(255,255,255,0.42);
+    }
+    .rpt-csv-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.72);
+    }
+    .rpt-csv-btn:disabled { opacity: .38; cursor: not-allowed; }
+
+    .rpt-status { font-size: 10.5px; margin-top: 8px; min-height: 14px; }
+    .rpt-status.loading { color: rgba(255,255,255,0.25); }
+    .rpt-status.ok  { color: #5E9E72; }
+    .rpt-status.err { color: #D06060; }
+
+    /* Legacy CSV section */
+    .rpt-legacy-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
 
     .report-card {
       display: flex;
       align-items: center;
-      gap: 16px;
-      background: var(--surface);
-      border: 1px solid var(--rule);
-      border-radius: 5px;
-      padding: 18px 20px;
-      transition: border-color 150ms;
+      gap: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 7px;
+      padding: 12px 14px;
+      transition: border-color 140ms;
     }
-
-    .report-card:hover { border-color: var(--rule-hi); }
-
-    .report-icon {
-      font-size: 22px;
-      flex-shrink: 0;
-      width: 36px;
-      text-align: center;
-    }
-
+    .report-card:hover { border-color: rgba(255,255,255,0.10); }
+    .report-icon { font-size: 15px; flex-shrink: 0; width: 24px; text-align: center; opacity: .7; }
     .report-info { flex: 1; }
-
-    .report-title {
-      font-family: var(--head);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--t1);
-      margin-bottom: 4px;
-    }
-
-    .report-desc {
-      font-size: 11px;
-      color: var(--t3);
-      line-height: 1.5;
-    }
-
+    .report-title { font-family: var(--head); font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.60); margin-bottom: 2px; }
+    .report-desc  { font-size: 10px; color: rgba(255,255,255,0.22); line-height: 1.4; }
     .report-btn {
       flex-shrink: 0;
-      background: rgba(200,169,122,0.10);
-      border: 1px solid rgba(200,169,122,0.18);
-      border-radius: 4px;
-      color: var(--cash);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 5px;
+      color: rgba(255,255,255,0.38);
       font-family: var(--sans);
-      font-size: 11.5px;
-      font-weight: 500;
-      padding: 7px 16px;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 5px 12px;
       cursor: pointer;
       text-decoration: none;
       white-space: nowrap;
-      transition: background 150ms;
+      transition: all 130ms;
       display: inline-block;
     }
-
-    .report-btn:hover { background: rgba(200,169,122,0.18); }
+    .report-btn:hover {
+      border-color: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.65);
+    }
     .report-btn.disabled { opacity: 0.35; pointer-events: none; }
 
-    @media (max-width: 800px) {
-      .reports-grid { grid-template-columns: 1fr; }
+    @media (max-width: 600px) {
+      .rpt-legacy-grid { grid-template-columns: 1fr; }
+      .rpt-pdf-btn, .rpt-csv-btn { max-width: 100%; }
     }
 
     /* Toast */
@@ -1015,8 +1192,8 @@
 
     /* Demo mode banner */
     .demo-banner {
-      background: rgba(200,169,122,0.07);
-      border: 1px solid rgba(200,169,122,0.15);
+      background: rgba(204,32,32,0.07);
+      border: 1px solid rgba(204,32,32,0.15);
       border-radius: 5px;
       padding: 12px 18px;
       font-size: 12px;
@@ -1067,7 +1244,7 @@
     .settings-input:focus { border-color: var(--cash); }
     .settings-input.narrow { width: 100px; }
     .settings-input.wide   { width: 280px; }
-    .settings-save-btn { background: var(--cash); color: #0A0908; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 7px 16px; cursor: pointer; letter-spacing: .04em; transition: opacity .15s; }
+    .settings-save-btn { background: var(--cash); color: #F2E8E8; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 7px 16px; cursor: pointer; letter-spacing: .04em; transition: opacity .15s; }
     .settings-save-btn:hover { opacity: .85; }
     .settings-save-btn.ghost { background: none; border: 1px solid var(--rule-hi); color: var(--t2); }
     .settings-save-btn.ghost:hover { border-color: var(--t2); color: var(--t1); }
@@ -1085,7 +1262,7 @@
       background: var(--rule); color: var(--t2); border: 1px solid transparent;
       transition: all .15s; cursor: pointer;
     }
-    .peak-day-pill input:checked + span { background: rgba(200,169,122,.15); color: var(--cash); border-color: rgba(200,169,122,.3); }
+    .peak-day-pill input:checked + span { background: rgba(204,32,32,.15); color: var(--cash); border-color: rgba(204,32,32,.3); }
     /* Accent theme swatches */
     .theme-swatches { display: flex; gap: 8px; }
     .theme-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color .15s, transform .15s; }
@@ -1101,7 +1278,7 @@
     .today-rev-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; }
     .rev-rating { display:inline-block; padding:2px 9px; border-radius:4px; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap; }
     .rev-rating.great { background:rgba(90,153,104,.15);  color:var(--pos); }
-    .rev-rating.good  { background:rgba(200,169,122,.12); color:var(--cash); }
+    .rev-rating.good  { background:rgba(204,32,32,.12); color:var(--cash); }
     .rev-rating.low   { background:rgba(155,91,91,.12);   color:var(--neg); }
     .rev-rating.idle  { background:var(--rule);            color:var(--t3); }
 
@@ -1171,10 +1348,78 @@
       text-transform: uppercase;
     }
     .restock-pill.ok   { background: rgba(90,153,104,.12); color: var(--pos); }
-    .restock-pill.warn { background: rgba(200,169,122,.12); color: var(--cash); }
+    .restock-pill.warn { background: rgba(204,32,32,.12); color: var(--cash); }
     .restock-pill.crit { background: rgba(155,91,91,.12);   color: var(--neg); }
     .restock-pill.nd   { background: var(--rule); color: var(--t3); }
     .fc-note { font-size: 11px; color: var(--t3); padding: 14px 0 4px; }
+
+    /* ── Mobile bottom tab bar ─────────────────────────────── */
+    :root {
+      --mob-tab-h:    60px;
+      --mob-safe-b:   env(safe-area-inset-bottom, 0px);
+      --mob-total-bar: calc(var(--mob-tab-h) + var(--mob-safe-b));
+      --mob-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --mob-ease:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .mob-tabbar { display: none; }
+
+    @media (max-width: 768px) {
+      body { -webkit-tap-highlight-color: transparent; }
+      button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+      input, select, textarea { font-size: 16px !important; }
+
+      .sidebar { display: none !important; }
+
+      .shell { grid-template-columns: 1fr; width: 100%; }
+
+      .main {
+        padding: 24px 14px calc(var(--mob-total-bar) + 24px) !important;
+        background: var(--ground);
+        overflow-x: hidden;
+      }
+
+      .metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .chart-row   { grid-template-columns: 1fr; }
+
+      .metric-card { padding: 16px 14px 14px; }
+      .card-value  { font-size: 20px; }
+      .card-sub    { font-size: 9.5px; }
+      .card-label  { font-size: 8px; }
+
+      .mob-tabbar {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 900;
+        height: var(--mob-total-bar);
+        padding-bottom: var(--mob-safe-b);
+        background: rgba(0,0,0,0.94);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border-top: 1px solid rgba(204,32,32,0.18);
+        align-items: flex-start;
+        justify-content: space-around;
+      }
+
+      .mob-tab-btn {
+        flex: 1;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 4px; height: var(--mob-tab-h);
+        background: none; border: none; cursor: pointer; padding: 8px 0;
+        color: rgba(242,232,232,0.30);
+        transition: color 180ms var(--mob-ease);
+      }
+      .mob-tab-btn.active { color: var(--cash); }
+      .mob-tab-btn svg { width: 22px; height: 22px; transition: transform 200ms var(--mob-spring); }
+      .mob-tab-btn.active svg { transform: scale(1.08); }
+      .mob-tab-lbl {
+        font-size: 9.5px;
+        font-family: var(--sans);
+        font-weight: 500;
+        letter-spacing: 0.01em;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1200,10 +1445,10 @@
       <button class="sb-item" data-tab="inventory">Inventory</button>
       <button class="sb-item" data-tab="forecast">Forecast</button>
       <button class="sb-item" data-tab="reports">Reports</button>
-      <button class="sb-item" data-tab="settings">Settings</button>
     </nav>
 
     <div class="sb-bottom">
+      <button class="sb-item" data-tab="settings">Settings</button>
       <button class="sb-logout" id="sb-logout">Sign out</button>
     </div>
   </aside>
@@ -1251,7 +1496,7 @@
           <div class="recovery-track">
             <div class="recovery-fill" id="recovery-fill" style="width:0%"></div>
           </div>
-          <div class="card-sub">of total setup cost</div>
+          <div class="card-sub" id="sub-recovery">of total setup cost</div>
         </div>
       </div>
 
@@ -1260,14 +1505,20 @@
           <div class="chart-header">
             <div class="chart-title">Daily Revenue</div>
             <div class="chart-legend">
-              <span><span class="leg-dot" style="background:var(--cash)"></span>Cash</span>
-              <span><span class="leg-dot" style="background:var(--visa)"></span>Visa</span>
+              <span><span class="leg-dot" style="background:var(--cash)"></span>Store</span>
               <span><span class="leg-dot" style="background:var(--talabat)"></span>Talabat</span>
             </div>
           </div>
           <div class="bar-chart-wrap">
             <canvas id="bar-chart"></canvas>
             <div class="chart-empty-msg" id="bar-empty" style="display:none">No revenue data yet — start logging daily inputs</div>
+            <div class="bar-tooltip hidden" id="bar-tooltip">
+              <div class="bt-date" id="bt-date"></div>
+              <div class="bt-row"><span class="bt-dot" style="background:var(--cash)"></span><span>Store</span><span class="bt-val" id="bt-store"></span></div>
+              <div class="bt-row"><span class="bt-dot" style="background:var(--talabat)"></span><span>Talabat</span><span class="bt-val" id="bt-talabat"></span></div>
+              <hr class="bt-sep">
+              <div class="bt-row total"><span>Total</span><span class="bt-val" id="bt-total"></span></div>
+            </div>
           </div>
         </div>
 
@@ -1283,15 +1534,9 @@
           <div class="donut-legend">
             <div class="donut-row">
               <span class="leg-dot" style="background:var(--cash)"></span>
-              <span class="donut-label">Cash</span>
-              <span class="donut-val" id="dv-cash">—</span>
-              <span class="donut-pct" id="dp-cash">—</span>
-            </div>
-            <div class="donut-row">
-              <span class="leg-dot" style="background:var(--visa)"></span>
-              <span class="donut-label">Visa</span>
-              <span class="donut-val" id="dv-visa">—</span>
-              <span class="donut-pct" id="dp-visa">—</span>
+              <span class="donut-label">Store</span>
+              <span class="donut-val" id="dv-store">—</span>
+              <span class="donut-pct" id="dp-store">—</span>
             </div>
             <div class="donut-row">
               <span class="leg-dot" style="background:var(--talabat)"></span>
@@ -1315,10 +1560,10 @@
           <div class="card-value" id="val-banked">—</div>
           <div class="card-sub">transferred to account</div>
         </div>
-        <div class="card balance-card">
-          <div class="card-label">Undeposited</div>
+        <div class="card balance-card acct-bal-card">
+          <div class="card-label">Account Balance <span class="acct-bal-edit-icon" title="Edit">✏</span></div>
           <div class="card-value" id="val-outstanding">—</div>
-          <div class="card-sub">earned, not yet transferred</div>
+          <div class="card-sub" id="sub-outstanding">earned, not yet transferred</div>
         </div>
       </div>
 
@@ -1837,6 +2082,31 @@
     ═══════════════════════════════════════════════════ -->
     <div class="tab-view" id="tab-forecast">
 
+      <!-- Season Total Forecast -->
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title">Season Total Forecast</div>
+          <div id="fc-season-badge" class="fc-trend-badge flat" style="display:none;"></div>
+        </div>
+        <div class="sec-body">
+          <div class="fc-summary-row">
+            <div class="fc-metric">
+              <div class="fc-metric-label">Projected Season Total</div>
+              <div class="fc-metric-val" id="fc-season-total">—</div>
+            </div>
+            <div class="fc-metric">
+              <div class="fc-metric-label">Already Earned</div>
+              <div class="fc-metric-val" id="fc-season-earned">—</div>
+            </div>
+            <div class="fc-metric">
+              <div class="fc-metric-label">Projected Remaining</div>
+              <div class="fc-metric-val" id="fc-season-proj">—</div>
+            </div>
+          </div>
+          <div class="fc-note" id="fc-season-note"></div>
+        </div>
+      </div>
+
       <!-- Revenue forecast -->
       <div class="sec-card">
         <div class="sec-head">
@@ -1898,78 +2168,196 @@
     ═══════════════════════════════════════════════════ -->
     <div class="tab-view" id="tab-reports">
 
-      <div style="font-family:var(--head);font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px;">Export to CSV</div>
-      <p style="font-size:12px;color:var(--t3);margin-bottom:4px;">Download any dataset as a spreadsheet. Opens directly in Excel or Google Sheets.</p>
+      <div style="font-family:var(--head);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px;">Reports &amp; Exports</div>
+      <p style="font-size:12px;color:var(--t3);margin-bottom:16px;">Generate branded PDF reports or download CSV exports for any date range.</p>
 
-      <div class="reports-grid">
+      <div class="rpt-list" id="rpt-list">
 
-        <div class="report-card">
-          <div class="report-icon">📈</div>
-          <div class="report-info">
-            <div class="report-title">Daily Revenue</div>
-            <div class="report-desc">All revenue entries — cash, Visa, Talabat gross &amp; net by date</div>
+        <!-- Daily Revenue -->
+        <div class="rpt-card" data-rpt-type="revenue">
+          <div class="rpt-card-head">
+            <div class="rpt-card-icon">📈</div>
+            <div class="rpt-card-info">
+              <div class="rpt-card-title">Daily Revenue</div>
+              <div class="rpt-card-desc">Total, cash, Visa &amp; Talabat net with KPIs and period comparison</div>
+            </div>
           </div>
-          <a class="report-btn" id="exp-revenue">Download</a>
+          <div class="rpt-range-row"><div class="rpt-range-pills">
+            <button class="rpt-range-pill" data-range="today">Today</button>
+            <button class="rpt-range-pill" data-range="yesterday">Yesterday</button>
+            <button class="rpt-range-pill active" data-range="last7">Last 7 Days</button>
+            <button class="rpt-range-pill" data-range="last30">Last 30 Days</button>
+            <button class="rpt-range-pill" data-range="thisweek">This Week</button>
+            <button class="rpt-range-pill" data-range="lastweek">Last Week</button>
+            <button class="rpt-range-pill" data-range="thismonth">This Month</button>
+            <button class="rpt-range-pill" data-range="lastmonth">Last Month</button>
+            <button class="rpt-range-pill" data-range="custom">Custom…</button>
+          </div></div>
+          <div class="rpt-custom-dates" style="display:none;">
+            <input type="date" class="rpt-date-input rpt-custom-start">
+            <span style="color:var(--t3);font-size:11px;">to</span>
+            <input type="date" class="rpt-date-input rpt-custom-end">
+          </div>
+          <div class="rpt-actions">
+            <button class="rpt-pdf-btn">Generate PDF</button>
+            <button class="rpt-csv-btn">Export CSV</button>
+          </div>
+          <div class="rpt-status"></div>
         </div>
 
-        <div class="report-card">
-          <div class="report-icon">🧾</div>
-          <div class="report-info">
-            <div class="report-title">Daily Expenses</div>
-            <div class="report-desc">Every expense logged — category, item, amount, payment method</div>
+        <!-- Daily Expenses -->
+        <div class="rpt-card" data-rpt-type="expenses">
+          <div class="rpt-card-head">
+            <div class="rpt-card-icon">🧾</div>
+            <div class="rpt-card-info">
+              <div class="rpt-card-title">Daily Expenses</div>
+              <div class="rpt-card-desc">Every expense — category, item, amount, payment method with category breakdown</div>
+            </div>
           </div>
-          <a class="report-btn" id="exp-expenses">Download</a>
+          <div class="rpt-range-row"><div class="rpt-range-pills">
+            <button class="rpt-range-pill" data-range="today">Today</button>
+            <button class="rpt-range-pill" data-range="yesterday">Yesterday</button>
+            <button class="rpt-range-pill active" data-range="last7">Last 7 Days</button>
+            <button class="rpt-range-pill" data-range="last30">Last 30 Days</button>
+            <button class="rpt-range-pill" data-range="thisweek">This Week</button>
+            <button class="rpt-range-pill" data-range="lastweek">Last Week</button>
+            <button class="rpt-range-pill" data-range="thismonth">This Month</button>
+            <button class="rpt-range-pill" data-range="lastmonth">Last Month</button>
+            <button class="rpt-range-pill" data-range="custom">Custom…</button>
+          </div></div>
+          <div class="rpt-custom-dates" style="display:none;">
+            <input type="date" class="rpt-date-input rpt-custom-start">
+            <span style="color:var(--t3);font-size:11px;">to</span>
+            <input type="date" class="rpt-date-input rpt-custom-end">
+          </div>
+          <div class="rpt-actions">
+            <button class="rpt-pdf-btn">Generate PDF</button>
+            <button class="rpt-csv-btn">Export CSV</button>
+          </div>
+          <div class="rpt-status"></div>
         </div>
 
-        <div class="report-card">
-          <div class="report-icon">🏦</div>
-          <div class="report-info">
-            <div class="report-title">Bank Transfers</div>
-            <div class="report-desc">Cash deposits, Visa settlements, Talabat payouts with period coverage</div>
+        <!-- Bank Transfers -->
+        <div class="rpt-card" data-rpt-type="transfers">
+          <div class="rpt-card-head">
+            <div class="rpt-card-icon">🏦</div>
+            <div class="rpt-card-info">
+              <div class="rpt-card-title">Bank Transfers</div>
+              <div class="rpt-card-desc">Cash deposits, Visa settlements &amp; Talabat payouts with period coverage</div>
+            </div>
           </div>
-          <a class="report-btn" id="exp-transfers">Download</a>
+          <div class="rpt-range-row"><div class="rpt-range-pills">
+            <button class="rpt-range-pill" data-range="today">Today</button>
+            <button class="rpt-range-pill" data-range="yesterday">Yesterday</button>
+            <button class="rpt-range-pill active" data-range="last7">Last 7 Days</button>
+            <button class="rpt-range-pill" data-range="last30">Last 30 Days</button>
+            <button class="rpt-range-pill" data-range="thisweek">This Week</button>
+            <button class="rpt-range-pill" data-range="lastweek">Last Week</button>
+            <button class="rpt-range-pill" data-range="thismonth">This Month</button>
+            <button class="rpt-range-pill" data-range="lastmonth">Last Month</button>
+            <button class="rpt-range-pill" data-range="custom">Custom…</button>
+          </div></div>
+          <div class="rpt-custom-dates" style="display:none;">
+            <input type="date" class="rpt-date-input rpt-custom-start">
+            <span style="color:var(--t3);font-size:11px;">to</span>
+            <input type="date" class="rpt-date-input rpt-custom-end">
+          </div>
+          <div class="rpt-actions">
+            <button class="rpt-pdf-btn">Generate PDF</button>
+            <button class="rpt-csv-btn">Export CSV</button>
+          </div>
+          <div class="rpt-status"></div>
         </div>
 
-        <div class="report-card">
-          <div class="report-icon">💵</div>
-          <div class="report-info">
-            <div class="report-title">Cash Drawer</div>
-            <div class="report-desc">Opening cash, expected closing, actual counts and daily variance</div>
+        <!-- Cash Drawer -->
+        <div class="rpt-card" data-rpt-type="cash-drawer">
+          <div class="rpt-card-head">
+            <div class="rpt-card-icon">💵</div>
+            <div class="rpt-card-info">
+              <div class="rpt-card-title">Cash Drawer</div>
+              <div class="rpt-card-desc">Opening cash, expected vs actual closing, variance &amp; reconciliation status</div>
+            </div>
           </div>
-          <a class="report-btn" id="exp-cash-drawer">Download</a>
+          <div class="rpt-range-row"><div class="rpt-range-pills">
+            <button class="rpt-range-pill" data-range="today">Today</button>
+            <button class="rpt-range-pill" data-range="yesterday">Yesterday</button>
+            <button class="rpt-range-pill active" data-range="last7">Last 7 Days</button>
+            <button class="rpt-range-pill" data-range="last30">Last 30 Days</button>
+            <button class="rpt-range-pill" data-range="thisweek">This Week</button>
+            <button class="rpt-range-pill" data-range="lastweek">Last Week</button>
+            <button class="rpt-range-pill" data-range="thismonth">This Month</button>
+            <button class="rpt-range-pill" data-range="lastmonth">Last Month</button>
+            <button class="rpt-range-pill" data-range="custom">Custom…</button>
+          </div></div>
+          <div class="rpt-custom-dates" style="display:none;">
+            <input type="date" class="rpt-date-input rpt-custom-start">
+            <span style="color:var(--t3);font-size:11px;">to</span>
+            <input type="date" class="rpt-date-input rpt-custom-end">
+          </div>
+          <div class="rpt-actions">
+            <button class="rpt-pdf-btn">Generate PDF</button>
+            <button class="rpt-csv-btn">Export CSV</button>
+          </div>
+          <div class="rpt-status"></div>
         </div>
 
-        <div class="report-card">
-          <div class="report-icon">📦</div>
-          <div class="report-info">
-            <div class="report-title">Inventory Checks</div>
-            <div class="report-desc">System vs physical counts with variance per item per date</div>
+        <!-- Inventory -->
+        <div class="rpt-card" data-rpt-type="inventory">
+          <div class="rpt-card-head">
+            <div class="rpt-card-icon">📦</div>
+            <div class="rpt-card-info">
+              <div class="rpt-card-title">Inventory Checks</div>
+              <div class="rpt-card-desc">System vs physical counts — shortages, overages &amp; variance per item</div>
+            </div>
           </div>
-          <a class="report-btn" id="exp-inventory">Download</a>
+          <div class="rpt-range-row"><div class="rpt-range-pills">
+            <button class="rpt-range-pill" data-range="today">Today</button>
+            <button class="rpt-range-pill" data-range="yesterday">Yesterday</button>
+            <button class="rpt-range-pill active" data-range="last7">Last 7 Days</button>
+            <button class="rpt-range-pill" data-range="last30">Last 30 Days</button>
+            <button class="rpt-range-pill" data-range="thisweek">This Week</button>
+            <button class="rpt-range-pill" data-range="lastweek">Last Week</button>
+            <button class="rpt-range-pill" data-range="thismonth">This Month</button>
+            <button class="rpt-range-pill" data-range="lastmonth">Last Month</button>
+            <button class="rpt-range-pill" data-range="custom">Custom…</button>
+          </div></div>
+          <div class="rpt-custom-dates" style="display:none;">
+            <input type="date" class="rpt-date-input rpt-custom-start">
+            <span style="color:var(--t3);font-size:11px;">to</span>
+            <input type="date" class="rpt-date-input rpt-custom-end">
+          </div>
+          <div class="rpt-actions">
+            <button class="rpt-pdf-btn">Generate PDF</button>
+            <button class="rpt-csv-btn">Export CSV</button>
+          </div>
+          <div class="rpt-status"></div>
         </div>
 
+      </div><!-- /rpt-list -->
+
+      <!-- Legacy CSV Exports -->
+      <div style="font-family:var(--head);font-size:10.5px;font-weight:700;color:var(--t3);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.06em;">Other Exports</div>
+      <div class="rpt-legacy-grid">
         <div class="report-card">
           <div class="report-icon">🔧</div>
           <div class="report-info">
             <div class="report-title">Setup Expenses</div>
             <div class="report-desc">One-time startup costs by category</div>
           </div>
-          <a class="report-btn" id="exp-setup-expenses">Download</a>
+          <a class="report-btn" id="exp-setup-expenses">CSV</a>
         </div>
-
         <div class="report-card">
           <div class="report-icon">🔁</div>
           <div class="report-info">
             <div class="report-title">Recurring Expenses</div>
-            <div class="report-desc">All recurring expense definitions — frequency, amount, active status</div>
+            <div class="report-desc">All recurring expense definitions</div>
           </div>
-          <a class="report-btn" id="exp-recurring-expenses">Download</a>
+          <a class="report-btn" id="exp-recurring-expenses">CSV</a>
         </div>
-
       </div>
 
       <div class="demo-banner" id="reports-demo-msg" style="display:none;">
-        Connect to the backend to download real data exports.
+        Connect to the backend to generate reports and export data.
       </div>
 
     </div><!-- /tab-reports -->
@@ -2061,7 +2449,7 @@
           </div>
           <div class="settings-row-ctrl">
             <div class="theme-swatches">
-              <div class="theme-swatch active" data-theme="gold"  style="background:#C8A97A;" title="Warm Gold"></div>
+              <div class="theme-swatch active" data-theme="gold"  style="background:#CC2020;" title="Warm Gold"></div>
               <div class="theme-swatch" data-theme="blue"  style="background:#6E97B8;" title="Cool Blue"></div>
               <div class="theme-swatch" data-theme="sage"  style="background:#5A9968;" title="Sage Green"></div>
               <div class="theme-swatch" data-theme="rose"  style="background:#C87A8A;" title="Dusty Rose"></div>
@@ -2227,8 +2615,8 @@
   /* ═══════════════════════════════════════════════════════
      HOME TAB
   ═══════════════════════════════════════════════════════ */
-  var COLORS = { cash:'#C8A97A', visa:'#6E97B8', talabat:'#A47455', grid:'rgba(230,210,180,0.06)', label:'#474340', empty:'#2A2825' };
-  var _lastBarRows = null, _resizeTimer = null;
+  var COLORS = { cash:'#CC2020', visa:'#6E97B8', talabat:'#A47455', grid:'rgba(220,40,40,0.06)', label:'#4A2020', empty:'#1A0505' };
+  var _lastBarRows = null, _resizeTimer = null, _barHitZones = [], _acctPaidExp = 0, _acctBalBase = null;
 
   window.addEventListener('resize', function(){
     clearTimeout(_resizeTimer);
@@ -2243,14 +2631,24 @@
   }
 
   function renderMetrics(s, revRows) {
-    set('val-revenue', fmtEGP(s.revenue.totalRevenue));
-    set('sub-revenue', s.revenue.daysWithRevenue + ' days recorded');
-    set('val-avg', fmtEGP(s.revenue.avgDailyRevenue));
-    set('sub-avg', 'over ' + s.revenue.daysWithRevenue + ' operating days');
-    var pct = s.netPosition.setupRecoveredPercent;
-    set('val-recovery', fmtPct(pct));
-    var rf = $('recovery-fill');
-    if (rf) rf.style.width = Math.min(pct, 100) + '%';
+    var rev = s.revenue || {};
+    var net = s.netPosition || {};
+    var exp = s.expenses || {};
+    set('val-revenue', fmtEGP(rev.totalRevenue));
+    set('sub-revenue', (rev.daysWithRevenue || 0) + ' days recorded');
+    set('val-avg', fmtEGP(rev.avgDailyRevenue));
+    set('sub-avg', 'over ' + (rev.daysWithRevenue || 0) + ' operating days');
+    var setupCost = exp.totalSetupCost || 0;
+    var pct = net.setupRecoveredPercent;
+    if (setupCost <= 0) {
+      set('val-recovery', '—');
+      set('sub-recovery', 'Add expenses in Set Values');
+      var rf = $('recovery-fill'); if (rf) rf.style.width = '0%';
+    } else {
+      set('val-recovery', pct != null ? fmtPct(pct) : '—');
+      set('sub-recovery', 'of ' + fmtEGPShort(setupCost) + ' setup cost');
+      var rf = $('recovery-fill'); if (rf) rf.style.width = (pct != null ? Math.min(pct, 100) : 0) + '%';
+    }
 
     // Today's Revenue card
     var todayEl    = $('val-today-rev');
@@ -2303,12 +2701,20 @@
   function renderBalances(s, drawer) {
     var banked = (s.bankTransferHealth || []).reduce(function(a,c){ return a+(c.transferred||0); }, 0);
     set('val-banked', fmtEGP(banked));
-    var outstanding = s.revenue.totalRevenue - banked;
     var outEl = $('val-outstanding');
+    var subEl = $('sub-outstanding');
+    var manualBal    = (s.accountBalance !== null && s.accountBalance !== undefined);
+    var paidExpenses = (s.expenses && s.expenses.totalDailyExpenses) || 0;
+    _acctPaidExp     = paidExpenses;
+    _acctBalBase     = manualBal ? s.accountBalance : null;
+    var outstanding  = manualBal
+      ? s.accountBalance
+      : (s.revenue.totalRevenue - banked - paidExpenses);
     if (outEl) {
       outEl.textContent = fmtEGP(outstanding);
       outEl.className = 'card-value' + (outstanding > 10000 ? ' neg' : '');
     }
+    if (subEl) subEl.textContent = manualBal ? 'manually set · click to update' : 'earned, not yet transferred';
     if (drawer) {
       var actual = drawer.actual_counted_cash, expected = drawer.expected_closing_cash;
       var drawerEl = $('val-drawer');
@@ -2340,16 +2746,15 @@
     canvas.width = S*dpr; canvas.height = S*dpr;
     var ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
     var cx=S/2, cy=S/2, outer=S/2-6, inner=outer*0.60;
-    var cash=rev.cashRevenue||0, visa=rev.visaRevenue||0, tal=rev.talabatNetRevenue||0, total=cash+visa+tal;
+    var store=(rev.cashRevenue||0)+(rev.visaRevenue||0), tal=rev.talabatNetRevenue||0, total=store+tal;
     set('donut-center-val', fmtEGPShort(total));
-    set('dv-cash', fmtEGPShort(cash));   set('dp-cash', total?fmtPct(cash/total*100):'—');
-    set('dv-visa', fmtEGPShort(visa));   set('dp-visa', total?fmtPct(visa/total*100):'—');
+    set('dv-store', fmtEGPShort(store)); set('dp-store', total?fmtPct(store/total*100):'—');
     set('dv-talabat', fmtEGPShort(tal)); set('dp-talabat', total?fmtPct(tal/total*100):'—');
     if (!total) {
       ctx.beginPath(); ctx.arc(cx,cy,outer,0,Math.PI*2); ctx.arc(cx,cy,inner,0,Math.PI*2,true);
       ctx.fillStyle=COLORS.empty; ctx.fill('evenodd'); return;
     }
-    var segs=[{val:cash,color:COLORS.cash},{val:visa,color:COLORS.visa},{val:tal,color:COLORS.talabat}];
+    var segs=[{val:store,color:COLORS.cash},{val:tal,color:COLORS.talabat}];
     var angle=-Math.PI/2, gap=0.03;
     segs.forEach(function(seg){
       if(!seg.val) return;
@@ -2367,9 +2772,9 @@
     var W=canvas.offsetWidth, H=canvas.offsetHeight;
     canvas.width=W*dpr; canvas.height=H*dpr;
     var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-    var disp=data.map(function(r){ return {date:r.date, cash:r.revenue_cash||0, visa:r.revenue_visa||0, talabat:(r.revenue_talabat_gross||0)*0.87}; });
+    var disp=data.map(function(r){ return {date:r.date, store:(r.revenue_cash||0)+(r.revenue_visa||0), talabat:(r.revenue_talabat_gross||0)*0.87}; });
     var pad={top:12,right:4,bottom:28,left:44}, chartW=W-pad.left-pad.right, chartH=H-pad.top-pad.bottom;
-    var maxVal=Math.max.apply(null, disp.map(function(r){return r.cash+r.visa+r.talabat;}));
+    var maxVal=Math.max.apply(null, disp.map(function(r){return r.store+r.talabat;}));
     if (!maxVal) maxVal=1000;
     var yMax=Math.ceil(maxVal/1000)*1000; if(yMax<500) yMax=500;
     var yTicks=4;
@@ -2381,17 +2786,126 @@
       ctx.fillText(yVal>=1000?(yVal/1000).toFixed(0)+'k':yVal.toFixed(0), pad.left-6, yPx+3);
     }
     var n=disp.length, slotW=chartW/n, barW=Math.max(Math.min(slotW*0.62,18),4), barGap=(slotW-barW)/2;
+    _barHitZones = [];
     disp.forEach(function(r,i){
-      var x=pad.left+i*slotW+barGap, cashH=(r.cash/yMax)*chartH, visaH=(r.visa/yMax)*chartH, talH=(r.talabat/yMax)*chartH;
+      var x=pad.left+i*slotW+barGap, storeH=(r.store/yMax)*chartH, talH=(r.talabat/yMax)*chartH;
       var yBase=pad.top+chartH;
-      if(talH>0.5){ctx.fillStyle=COLORS.talabat; ctx.fillRect(x,yBase-cashH-visaH-talH,barW,talH);}
-      if(visaH>0.5){ctx.fillStyle=COLORS.visa; ctx.fillRect(x,yBase-cashH-visaH,barW,visaH);}
-      if(cashH>0.5){ctx.fillStyle=COLORS.cash; ctx.fillRect(x,yBase-cashH,barW,cashH);}
+      if(talH>0.5){ctx.fillStyle=COLORS.talabat; ctx.fillRect(x,yBase-storeH-talH,barW,talH);}
+      if(storeH>0.5){ctx.fillStyle=COLORS.cash; ctx.fillRect(x,yBase-storeH,barW,storeH);}
       if (n<=14||i===0||i===n-1||i%Math.ceil(n/10)===0){
         ctx.fillStyle=COLORS.label; ctx.font='8.5px DM Sans'; ctx.textAlign='center';
         ctx.fillText(r.date.slice(5), x+barW/2, H-pad.bottom+11);
       }
+      _barHitZones.push({ x: x, w: barW, slotX: pad.left+i*slotW, slotW: slotW, data: r });
     });
+    initBarHover();
+  }
+
+  function initBarHover() {
+    var canvas = $('bar-chart');
+    if (!canvas || canvas._hoverInit) return;
+    canvas._hoverInit = true;
+
+    function hitBar(clientX) {
+      var rect = canvas.getBoundingClientRect();
+      var cx = (clientX - rect.left) * (canvas.offsetWidth / rect.width);
+      for (var i = 0; i < _barHitZones.length; i++) {
+        var hz = _barHitZones[i];
+        if (cx >= hz.slotX && cx < hz.slotX + hz.slotW) return hz.data;
+      }
+      return null;
+    }
+
+    function showTip(data, clientX, clientY) {
+      var tip = $('bar-tooltip'); if (!tip) return;
+      var wrap = canvas.parentElement;
+      var wr = wrap.getBoundingClientRect();
+      var tx = clientX - wr.left, ty = clientY - wr.top;
+      var d = new Date(data.date + 'T12:00:00Z');
+      $('bt-date').textContent = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'});
+      $('bt-store').textContent    = fmtEGP(data.store);
+      $('bt-talabat').textContent  = fmtEGP(data.talabat);
+      $('bt-total').textContent    = fmtEGP(data.store + data.talabat);
+      tip.classList.remove('hidden');
+      var tw = tip.offsetWidth || 165;
+      var left = tx + 14;
+      if (left + tw > wr.width - 4) left = tx - tw - 10;
+      tip.style.left = Math.max(0, left) + 'px';
+      tip.style.top  = Math.max(0, ty - 48) + 'px';
+    }
+
+    function hideTip() { var t=$('bar-tooltip'); if(t) t.classList.add('hidden'); }
+
+    canvas.addEventListener('mousemove', function(e) {
+      var bar = hitBar(e.clientX);
+      if (bar) { showTip(bar, e.clientX, e.clientY); canvas.style.cursor = 'crosshair'; }
+      else     { hideTip(); canvas.style.cursor = ''; }
+    });
+    canvas.addEventListener('mouseleave', hideTip);
+
+    canvas.addEventListener('touchstart', function(e) {
+      if (e.touches.length) { var t=e.touches[0]; var bar=hitBar(t.clientX); if(bar) showTip(bar,t.clientX,t.clientY); }
+    }, { passive: true });
+    canvas.addEventListener('touchend', function() {
+      setTimeout(hideTip, 2000);
+    }, { passive: true });
+  }
+
+  var _acctBalEditInit = false;
+  function initAccountBalanceEdit() {
+    if (_acctBalEditInit || IS_DEMO) return;
+    _acctBalEditInit = true;
+    var valEl = $('val-outstanding');
+    var subEl = $('sub-outstanding');
+    if (!valEl) return;
+
+    function enterEdit() {
+      if (valEl.querySelector('.acct-bal-input')) return; // already editing
+      // Pre-fill with the stored BASE (before expense deduction), not the displayed net
+      var editBase = (_acctBalBase !== null && _acctBalBase !== undefined)
+        ? _acctBalBase
+        : (parseFloat(valEl.textContent.replace(/[^0-9.]/g, '')) || 0) + _acctPaidExp;
+      var prevText  = valEl.textContent;
+      var prevClass = valEl.className;
+
+      var input = document.createElement('input');
+      input.type = 'number';
+      input.min  = '0';
+      input.value = Math.round(editBase);
+      input.className = 'acct-bal-input';
+      valEl.textContent = '';
+      valEl.appendChild(input);
+      input.focus();
+      input.select();
+
+      function cancel() {
+        valEl.textContent = prevText;
+        valEl.className   = prevClass;
+      }
+
+      function save() {
+        var num = parseFloat(input.value);
+        if (isNaN(num) || num < 0) { cancel(); return; }
+        _acctBalBase = num;
+        valEl.textContent = fmtEGP(num);
+        valEl.className   = 'card-value';
+        if (subEl) subEl.textContent = 'manually set · click to update';
+        api(base() + '/settings', {
+          method: 'PUT',
+          body: JSON.stringify({ key: 'account_balance', value: num }),
+        });
+      }
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter')  { input.blur(); }
+        if (e.key === 'Escape') { input.removeEventListener('blur', save); cancel(); }
+      });
+      input.addEventListener('blur', save);
+    }
+
+    valEl.addEventListener('click', enterEdit);
+    var icon = document.querySelector('.acct-bal-edit-icon');
+    if (icon) icon.addEventListener('click', enterEdit);
   }
 
   function loadHomeData() {
@@ -2406,6 +2920,7 @@
       if (summary) { renderSeason(summary); renderMetrics(summary, revRows); renderBalances(summary,drawer); renderStatus(summary.todayStatus); renderDonut(summary.revenue); }
       _lastBarRows = revRows && revRows.length ? revRows : null;
       requestAnimationFrame(function(){ drawBars(_lastBarRows||[]); });
+      initAccountBalanceEdit();
     });
   }
 
@@ -2895,18 +3410,47 @@
   var DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+  function renderSeasonForecast(summary) {
+    if (!summary || !summary.season || !summary.revenue) return;
+    var earned   = summary.revenue.totalRevenue    || 0;
+    var avgDaily = summary.revenue.avgDailyRevenue || 0;
+    var daysLeft = summary.season.remaining        || 0;
+    var daysElap = summary.season.elapsed          || 0;
+    var projected = Math.round(avgDaily * daysLeft);
+    var total     = earned + projected;
+
+    set('fc-season-total',  fmtEGP(total));
+    set('fc-season-earned', fmtEGP(earned));
+    set('fc-season-proj',   fmtEGP(projected));
+    set('fc-season-note',
+      'Day ' + daysElap + ' of ' + summary.season.totalDays + ' · ' +
+      fmtEGP(avgDaily) + '/day avg × ' + daysLeft + ' days left');
+
+    var badge = $('fc-season-badge');
+    if (badge && earned > 0 && daysLeft > 0) {
+      badge.style.display = 'inline-block';
+      var pctDone = Math.round(earned / total * 100);
+      badge.textContent = pctDone + '% complete';
+      badge.className = 'fc-trend-badge ' + (pctDone >= 50 ? 'up' : 'flat');
+    }
+  }
+
   function loadForecast() {
     if (IS_DEMO) {
-      renderRevenueForecast(buildDemoData().revenueRows);
+      var demo = buildDemoData();
+      renderSeasonForecast(demo.summary);
+      renderRevenueForecast(demo.revenueRows);
       renderRestockForecast(demoRestockRows());
       return;
     }
     Promise.all([
-      api(base()+'/home-summary'),
+      api(base()+'/summary'),
+      api(base()+'/revenue'),
       api(base()+'/inventory')
     ]).then(function(res){
-      var summary = res[0]||{}, inv = res[1]||[];
-      renderRevenueForecast(summary.revenueRows||[]);
+      var summary = res[0]||{}, revRows = res[1]||[], inv = res[2]||[];
+      renderSeasonForecast(summary);
+      renderRevenueForecast(revRows);
       renderRestockForecast(inv);
     });
   }
@@ -3075,27 +3619,184 @@
   /* ═══════════════════════════════════════════════════════
      REPORTS TAB
   ═══════════════════════════════════════════════════════ */
-  var EXPORTS = [
-    { id: 'exp-revenue',            table: 'revenue' },
-    { id: 'exp-expenses',           table: 'expenses' },
-    { id: 'exp-transfers',          table: 'transfers' },
-    { id: 'exp-cash-drawer',        table: 'cash-drawer' },
-    { id: 'exp-inventory',          table: 'inventory' },
-    { id: 'exp-setup-expenses',     table: 'setup-expenses' },
-    { id: 'exp-recurring-expenses', table: 'recurring-expenses' },
-  ];
+  /* ── Reports tab ─────────────────────────────────────── */
+
+  var _rptInitialized = false;
 
   function setupReports() {
     if (IS_DEMO) {
-      EXPORTS.forEach(function(e){ var el=$(e.id); if(el) el.classList.add('disabled'); });
-      var msg=$('reports-demo-msg'); if(msg) msg.style.display='block';
+      var msg = $('reports-demo-msg'); if (msg) msg.style.display = 'block';
+      document.querySelectorAll('.rpt-pdf-btn,.rpt-csv-btn').forEach(function(b){ b.disabled=true; });
+      document.querySelectorAll('#exp-setup-expenses,#exp-recurring-expenses').forEach(function(a){ a.classList.add('disabled'); });
       return;
     }
-    EXPORTS.forEach(function(e){
-      var el=$(e.id); if(!el) return;
-      el.href = base() + '/export/' + e.table;
-      el.setAttribute('download', 'optimize-' + e.table + '.csv');
+    // Wire legacy CSV links
+    var legacyMap = { 'exp-setup-expenses': 'setup-expenses', 'exp-recurring-expenses': 'recurring-expenses' };
+    Object.keys(legacyMap).forEach(function(id) {
+      var el = $(id); if (!el) return;
+      el.href = base() + '/export/' + legacyMap[id];
+      el.setAttribute('download', 'optimize-' + legacyMap[id] + '.csv');
     });
+    if (_rptInitialized) return;
+    _rptInitialized = true;
+    var today = new Date().toISOString().slice(0, 10);
+    document.querySelectorAll('.rpt-card').forEach(function(card) {
+      _initRptCard(card, today);
+    });
+  }
+
+  function _rptDateRange(range, today) {
+    var d = new Date(today + 'T12:00:00Z');
+    var start, end = today;
+    switch (range) {
+      case 'today':
+        start = today;
+        break;
+      case 'yesterday':
+        var y = new Date(d); y.setUTCDate(y.getUTCDate() - 1);
+        start = end = y.toISOString().slice(0, 10);
+        break;
+      case 'last7':
+        var s7 = new Date(d); s7.setUTCDate(s7.getUTCDate() - 6);
+        start = s7.toISOString().slice(0, 10);
+        break;
+      case 'last30':
+        var s30 = new Date(d); s30.setUTCDate(s30.getUTCDate() - 29);
+        start = s30.toISOString().slice(0, 10);
+        break;
+      case 'thisweek':
+        var sw = new Date(d);
+        sw.setUTCDate(sw.getUTCDate() - ((sw.getUTCDay() + 6) % 7));
+        start = sw.toISOString().slice(0, 10);
+        break;
+      case 'lastweek':
+        var lwe = new Date(d);
+        lwe.setUTCDate(lwe.getUTCDate() - ((lwe.getUTCDay() + 6) % 7) - 1);
+        var lws = new Date(lwe); lws.setUTCDate(lwe.getUTCDate() - 6);
+        start = lws.toISOString().slice(0, 10); end = lwe.toISOString().slice(0, 10);
+        break;
+      case 'thismonth':
+        start = today.slice(0, 7) + '-01';
+        break;
+      case 'lastmonth':
+        var lm  = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1));
+        var lme = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0));
+        start = lm.toISOString().slice(0, 10); end = lme.toISOString().slice(0, 10);
+        break;
+      default: start = today;
+    }
+    return { start: start, end: end };
+  }
+
+  function _initRptCard(card, today) {
+    // Default to Last 7 Days
+    var r = _rptDateRange('last7', today);
+    card.dataset.start = r.start;
+    card.dataset.end   = r.end;
+
+    // Range pill buttons
+    card.querySelectorAll('.rpt-range-pill').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        card.querySelectorAll('.rpt-range-pill').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var range = btn.dataset.range;
+        var customRow = card.querySelector('.rpt-custom-dates');
+        if (range === 'custom') {
+          if (customRow) customRow.style.display = 'flex';
+        } else {
+          if (customRow) customRow.style.display = 'none';
+          var rd = _rptDateRange(range, today);
+          card.dataset.start = rd.start;
+          card.dataset.end   = rd.end;
+          // Sync custom inputs in case user switches back
+          var cs = card.querySelector('.rpt-custom-start');
+          var ce = card.querySelector('.rpt-custom-end');
+          if (cs) cs.value = rd.start;
+          if (ce) ce.value = rd.end;
+        }
+      });
+    });
+
+    // Custom date inputs
+    var cs = card.querySelector('.rpt-custom-start');
+    var ce = card.querySelector('.rpt-custom-end');
+    if (cs && ce) {
+      cs.value = card.dataset.start;
+      ce.value = card.dataset.end;
+      cs.addEventListener('change', function() { card.dataset.start = cs.value || card.dataset.start; });
+      ce.addEventListener('change', function() { card.dataset.end   = ce.value || card.dataset.end; });
+    }
+
+    // PDF button
+    var pdfBtn = card.querySelector('.rpt-pdf-btn');
+    if (pdfBtn) {
+      pdfBtn.addEventListener('click', function() {
+        _generateReport(card, 'pdf');
+      });
+    }
+
+    // CSV button
+    var csvBtn = card.querySelector('.rpt-csv-btn');
+    if (csvBtn) {
+      csvBtn.addEventListener('click', function() {
+        _generateReport(card, 'csv');
+      });
+    }
+  }
+
+  function _generateReport(card, format) {
+    var type  = card.dataset.rptType;
+    var start = card.dataset.start;
+    var end   = card.dataset.end;
+    var statusEl = card.querySelector('.rpt-status');
+    var pdfBtn   = card.querySelector('.rpt-pdf-btn');
+    var csvBtn   = card.querySelector('.rpt-csv-btn');
+
+    if (!start || !end) { if(statusEl){statusEl.textContent='Select a date range first.';statusEl.className='rpt-status err';} return; }
+    if (start > end)    { if(statusEl){statusEl.textContent='Start date must be before end date.';statusEl.className='rpt-status err';} return; }
+
+    var url = base() + '/reports/' + type + '?start=' + start + '&end=' + end + '&format=' + format;
+
+    if (statusEl) { statusEl.textContent = 'Generating ' + format.toUpperCase() + ' report…'; statusEl.className = 'rpt-status loading'; }
+    if (pdfBtn) pdfBtn.disabled = true;
+    if (csvBtn) csvBtn.disabled = true;
+
+    var headers = {};
+    if (typeof TOKEN !== 'undefined' && TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+
+    fetch(url, { headers: headers, credentials: 'include' })
+      .then(function(resp) {
+        if (!resp.ok) {
+          return resp.json().then(function(j) { throw new Error(j.error || 'Server error ' + resp.status); });
+        }
+        return resp.blob();
+      })
+      .then(function(blob) {
+        var ext      = format === 'pdf' ? '.pdf' : '.csv';
+        var filename = type + '-' + start + '-to-' + end + ext;
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 2000);
+        if (statusEl) {
+          statusEl.textContent = format.toUpperCase() + ' downloaded.';
+          statusEl.className = 'rpt-status ok';
+          setTimeout(function() { statusEl.textContent = ''; statusEl.className = 'rpt-status'; }, 4000);
+        }
+      })
+      .catch(function(err) {
+        if (statusEl) {
+          statusEl.textContent = 'Error: ' + (err.message || 'Could not generate report');
+          statusEl.className = 'rpt-status err';
+        }
+      })
+      .finally(function() {
+        if (pdfBtn) pdfBtn.disabled = false;
+        if (csvBtn) csvBtn.disabled = false;
+      });
   }
 
   /* ── Logout ──────────────────────────────────────────── */
@@ -3128,7 +3829,7 @@
   ═══════════════════════════════════════════════════════ */
 
   var ACCENT_THEMES = {
-    gold:  { cash: '#C8A97A', visa: '#6E97B8', talabat: '#A47455', pos: '#5A9968', neg: '#9B5B5B' },
+    gold:  { cash: '#CC2020', visa: '#6E97B8', talabat: '#A47455', pos: '#5A9968', neg: '#9B5B5B' },
     blue:  { cash: '#6E97B8', visa: '#8AB4C8', talabat: '#5A8FAA', pos: '#5A9968', neg: '#9B5B5B' },
     sage:  { cash: '#5A9968', visa: '#6E97B8', talabat: '#7AA870', pos: '#5A9968', neg: '#9B5B5B' },
     rose:  { cash: '#C87A8A', visa: '#A87AB8', talabat: '#C87A70', pos: '#5A9968', neg: '#9B5B5B' },
@@ -3316,7 +4017,69 @@
     });
   }
 
+  // Mobile bottom tab bar
+  function mobGo(tab) {
+    // reuse existing tab switching: click the matching sidebar button
+    var sidebarBtn = document.querySelector('.sb-item[data-tab="' + tab + '"]');
+    if (sidebarBtn) sidebarBtn.click();
+    // sync active state on mob bar
+    document.querySelectorAll('.mob-tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.mobTab === tab);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  window.mobGo = mobGo;
+
 })();
 </script>
+
+<nav class="mob-tabbar" role="tablist" aria-label="Main navigation">
+
+  <button class="mob-tab-btn active" data-mob-tab="home" aria-label="Home" onclick="mobGo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>
+    </svg>
+    <span class="mob-tab-lbl">Home</span>
+  </button>
+
+  <button class="mob-tab-btn" data-mob-tab="daily" aria-label="Daily Inputs" onclick="mobGo('daily')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+    </svg>
+    <span class="mob-tab-lbl">Daily</span>
+  </button>
+
+  <button class="mob-tab-btn" data-mob-tab="calendar" aria-label="Calendar" onclick="mobGo('calendar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+    </svg>
+    <span class="mob-tab-lbl">Calendar</span>
+  </button>
+
+  <button class="mob-tab-btn" data-mob-tab="inventory" aria-label="Inventory" onclick="mobGo('inventory')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+      <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>
+    </svg>
+    <span class="mob-tab-lbl">Inventory</span>
+  </button>
+
+  <button class="mob-tab-btn" data-mob-tab="forecast" aria-label="Forecast" onclick="mobGo('forecast')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+    </svg>
+    <span class="mob-tab-lbl">Forecast</span>
+  </button>
+
+  <button class="mob-tab-btn" data-mob-tab="reports" aria-label="Reports" onclick="mobGo('reports')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 17l4-5 4 3 4-6 4 4"/><path d="M3 21h18"/>
+    </svg>
+    <span class="mob-tab-lbl">Reports</span>
+  </button>
+
+</nav>
+
 </body>
 </html>

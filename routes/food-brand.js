@@ -7,9 +7,11 @@
  * Tables are fb_* equivalents of BUNZY's single-tenant tables.
  */
 
-const express = require('express');
-const router  = express.Router({ mergeParams: true });
-const db      = require('../db/db');
+const express      = require('express');
+const router       = express.Router({ mergeParams: true });
+const db           = require('../db/db');
+const reportData   = require('../lib/report-data');
+const pdfReport    = require('../lib/pdf-report');
 const calc    = require('../lib/fb-calc');
 const cfg     = require('../lib/fb-config');
 
@@ -493,7 +495,9 @@ router.get('/summary', (req, res) => {
   const totalAllExpenses   = totalSetupCost + totalDailyExpenses;
 
   const netCashGenerated      = totalRevenue - totalAllExpenses;
-  const setupRecoveredPercent = calc.setupCostRecoveredPercent(netCashGenerated, totalSetupCost);
+  // Recovery = operating profit (revenue minus day-to-day costs only) vs setup investment
+  const operatingNet          = totalRevenue - totalDailyExpenses;
+  const setupRecoveredPercent = calc.setupCostRecoveredPercent(operatingNet, totalSetupCost);
 
   const transfers = db.db.prepare('SELECT * FROM fb_bank_transfers WHERE brand_id = ?').all(brand_id);
   const transferredBySource = src => transfers.filter(t => t.source === src).reduce((a, t) => a + t.amount_received, 0);
@@ -539,6 +543,9 @@ router.get('/summary', (req, res) => {
   const todayCash       = db.getFbCashDrawer(brand_id, today);
   const todayInvCount   = db.db.prepare('SELECT COUNT(*) as c FROM fb_inventory_check WHERE brand_id = ? AND date = ?').get(brand_id, today);
 
+  const acctBalRow    = db.getFbSetting(brand_id, 'account_balance');
+  const accountBalance = acctBalRow ? parseFloat(acctBalRow.value) : null;
+
   res.json({
     today,
     season: progress,
@@ -549,6 +556,7 @@ router.get('/summary', (req, res) => {
     cashDrawerHealth: { cumulativeVariance: cumulativeCashVariance, nonzeroVarianceDays, recentVariances },
     inventoryHealth: { linesChecked, linesWithVariance, topVariancesThisWeek },
     todayStatus: { date: today, revenue_entered: !!todayRevenue, expenses_entered: todayExpCount.c > 0, cash_counted: !!todayCash && todayCash.actual_counted_cash !== null, inventory_checked: todayInvCount.c > 0 },
+    accountBalance,
   });
 });
 
@@ -574,6 +582,74 @@ router.get('/export/:table', (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="optimize-${table}.csv"`);
   res.send(csv);
+});
+
+// ── Professional reports  ──────────────────────────────────────────────────────
+// GET /api/:brand_id/food-brand/reports/:type?start=&end=&format=pdf|csv
+
+const REPORT_TYPES = ['revenue', 'expenses', 'transfers', 'cash-drawer', 'inventory'];
+
+const DATA_FNS = {
+  revenue:      reportData.getRevenueData,
+  expenses:     reportData.getExpensesData,
+  transfers:    reportData.getTransfersData,
+  'cash-drawer': reportData.getCashDrawerData,
+  inventory:    reportData.getInventoryData,
+};
+
+function parseDate(str, fallback) {
+  if (str && /^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  return fallback;
+}
+
+router.get('/reports/:type', async (req, res) => {
+  try {
+    const { brand_id, type } = req.params;
+    const format = (req.query.format || 'pdf').toLowerCase();
+
+    if (!REPORT_TYPES.includes(type)) {
+      return res.status(404).json({ ok: false, error: 'Unknown report type: ' + type });
+    }
+    if (!['pdf', 'csv'].includes(format)) {
+      return res.status(400).json({ ok: false, error: 'format must be pdf or csv' });
+    }
+
+    // Default date range: last 7 days
+    const today = new Date().toISOString().slice(0, 10);
+    const d7ago = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
+    const start = parseDate(req.query.start, d7ago);
+    const end   = parseDate(req.query.end,   today);
+
+    if (start > end) {
+      return res.status(400).json({ ok: false, error: 'start must be ≤ end' });
+    }
+
+    // Fetch brand name for filename + PDF header
+    const brandRow  = db.getBrand(brand_id);
+    const brandName = brandRow ? brandRow.name : brand_id;
+
+    const data = DATA_FNS[type](brand_id, start, end);
+
+    if (format === 'csv') {
+      const csv      = reportData.buildCSV(data);
+      const filename = reportData.safeCSVFilename(brandName, type, start, end);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csv);
+    }
+
+    // PDF
+    const pdf      = await pdfReport.generate(data, brandName);
+    const filename = reportData.safeFilename(brandName, type, start, end);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdf.length);
+    return res.send(pdf);
+
+  } catch (err) {
+    console.error('[reports] error:', err.message, err.stack);
+    res.status(500).json({ ok: false, error: 'Report generation failed' });
+  }
 });
 
 module.exports = router;

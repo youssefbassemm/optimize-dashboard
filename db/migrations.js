@@ -904,23 +904,6 @@ function runMigrations() {
     );
   `);
 
-  // ── Remove bunzyeg@gmail.com so they can re-register as food_brand ─────────
-  // Uses CASCADE deletes: brands → all brand tables; users → sessions + tokens.
-  try {
-    const bunzyUser = db.prepare("SELECT id FROM users WHERE email = 'bunzyeg@gmail.com'").get();
-    if (bunzyUser) {
-      const bunzyBrands = db.prepare('SELECT brand_id FROM user_brands WHERE user_id = ?')
-        .all(bunzyUser.id);
-      for (const row of bunzyBrands) {
-        db.prepare('DELETE FROM brands WHERE id = ?').run(row.brand_id);
-      }
-      db.prepare('DELETE FROM users WHERE id = ?').run(bunzyUser.id);
-      console.log('[migrations] purged bunzyeg@gmail.com — free to re-register');
-    }
-  } catch (err) {
-    console.warn('[migrations] bunzy purge failed:', err.message);
-  }
-
   console.log('[migrations] ready');
 }
 
